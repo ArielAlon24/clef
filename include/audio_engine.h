@@ -5,7 +5,7 @@
 
 #define SAMPLE_RATE 44100
 
-typedef void (* AudioEngineCallback)(void* output, const void* input, unsigned int frame_count);
+typedef void (* AudioEngineCallback)(float* buffer, unsigned int frame_count);
 typedef ma_result AudioEngineResult;
 
 typedef struct {
@@ -23,6 +23,7 @@ void _audio_engine_callback(ma_device* device, void* output, const void* input, 
 void audio_engine_init(AudioEngineCallback callback);
 void audio_engine_free();
 
-AudioEngineResult audio_engine_play();
+AudioEngineResult audio_engine_start();
+AudioEngineResult audio_engine_stop();
 
 #endif

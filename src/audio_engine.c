@@ -25,7 +25,8 @@ void audio_engine_init(AudioEngineCallback callback) {
 
 /* AudioEngine callback used under the hood, call the AudioEngineCallback type provided by the user */
 void _audio_engine_callback(ma_device* device, void* output, const void* input, ma_uint32 frame_count) {
-    audio_engine->callback(output, input, frame_count);
+    float *buffer = (float *)output;
+    audio_engine->callback(buffer, frame_count);
 }
 
 void audio_engine_free() {
@@ -33,6 +34,10 @@ void audio_engine_free() {
     free(audio_engine);
 }
 
-AudioEngineResult audio_engine_play() {
+AudioEngineResult audio_engine_start() {
     return ma_device_start(&audio_engine->device);
+}
+
+AudioEngineResult audio_engine_stop() {
+    return ma_device_stop(&audio_engine->device);
 }
