@@ -17,4 +17,4 @@ file(GLOB_RECURSE SOURCES ${SOURCE_DIR}/*.c)
 
 add_executable(clef ${SOURCES} src/main.c)
 
-target_link_libraries(waves PUBLIC raylib)
+target_link_libraries(clef PUBLIC raylib)

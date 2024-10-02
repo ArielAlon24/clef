@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "*.js": "javascriptreact",
+        "*.jsx": "javascriptreact",
+        "audio_engine.h": "c",
+        "__locale": "c"
+    }
+}

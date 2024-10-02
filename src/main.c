@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#define MINIAUDIO_IMPLEMENTATION
-#include "miniaudio.h"
+
+#include "audio_engine.h"
 
 #define SAMPLE_RATE 44100      // 44.1 kHz sample rate
 #define FREQUENCY 440.0        // Frequency of sine wave (A4)
@@ -23,46 +23,23 @@ void generate_sine_wave(float* buffer, size_t frame_count, float frequency, floa
     }
 }
 
-void data_callback(ma_device* device, void* output, const void* input, ma_uint32 frame_count) {
+void callback(void* output, const void* input, unsigned int frame_count) {
     float* buffer = (float*)output;
 
     generate_sine_wave(buffer, frame_count, FREQUENCY, AMPLITUDE, SAMPLE_RATE);
 
-    (void)input;  // Unused input buffer
+    (void)input;
 }
 
 int main(void) {
-    ma_result result;
-    ma_device_config deviceConfig;
-    ma_device device;
+    audio_engine_init(callback);
 
-    // Configure the playback device
-    deviceConfig = ma_device_config_init(ma_device_type_playback);
-    deviceConfig.playback.format = ma_format_f32;      // 32-bit floating point
-    deviceConfig.playback.channels = 2;                // Mono audio
-    deviceConfig.sampleRate = SAMPLE_RATE;             // 44.1 kHz sample rate
-    deviceConfig.dataCallback = data_callback;         // Callback function to provide audio data
-
-    // Initialize the playback device
-    result = ma_device_init(NULL, &deviceConfig, &device);
-    if (result != MA_SUCCESS) {
-        printf("Failed to initialize playback device.\n");
-        return -1;
-    }
-
-    // Start playback
-    result = ma_device_start(&device);
-    if (result != MA_SUCCESS) {
-        printf("Failed to start playback device.\n");
-        ma_device_uninit(&device);
-        return -1;
-    }
+    audio_engine_play();
 
     printf("Playing sine wave... Press Enter to stop.\n");
-    getchar();  // Wait for user input
+    getchar();
 
-    // Stop playback and clean up
-    ma_device_uninit(&device);
+    audio_engine_free();
     return 0;
 }
 
