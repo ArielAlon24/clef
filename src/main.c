@@ -29,19 +29,20 @@ void callback(float *buffer, unsigned int frame_count) {
 
 int main(void) {
     audio_engine_init(callback);
-
-    audio_engine_start();
-
-    printf("Playing sine wave... Press Enter to stop.\n");
-    getchar();
-    audio_engine_stop();
-
-    printf("Stopped sine wave... Press Enter to start.\n");
-    getchar();
-    audio_engine_start();
+    audio_engine_play();
 
     printf("Playing sine wave... Press Enter to stop.\n");
     getchar();
+    audio_engine_pause();
+
+    printf("Stopped sine wave... Press Enter to play.\n");
+    getchar();
+    audio_engine_play();
+
+    printf("Playing sine wave... Press Enter to stop.\n");
+    getchar();
+
+    audio_engine_pause();
 
     audio_engine_free();
     return 0;
