@@ -8,7 +8,7 @@
 #define FADE_SPEED_RATE 0.5f
 
 typedef void (* AudioEngineCallback)(float* buffer, unsigned int frame_count);
-typedef ma_result AudioEngineResult;
+typedef void (* AudioEngineAnalyzer)(const float *buffer, unsigned int frame_count);
 
 /*
 AudioEngineState_t defines a state machine for the AudioEngines's thread. It uses both states and transitions.
@@ -32,7 +32,8 @@ typedef struct {
     ma_device device;
     ma_device_config config;
     AudioEngineCallback callback;
-    pthread_rwlock_t lock; /* TODO: Use a write only lock */
+    AudioEngineAnalyzer analyzer;
+    pthread_rwlock_t lock;
     AudioEngineState state;
     float amplitude; /* An inner amplitude value (between 0 and 1) used for fade-in and fade-out */
 } AudioEngine;
@@ -41,7 +42,7 @@ static AudioEngine *audio_engine = NULL;
 
 void _audio_engine_callback(ma_device* device, void* output, const void* input, ma_uint32 frame_count);
 
-void audio_engine_init(AudioEngineCallback callback);
+void audio_engine_init(AudioEngineCallback callback, AudioEngineAnalyzer analyzer);
 void audio_engine_free();
 
 void audio_engine_play();

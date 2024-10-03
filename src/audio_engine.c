@@ -9,10 +9,11 @@
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
-void audio_engine_init(AudioEngineCallback callback) {
+void audio_engine_init(AudioEngineCallback callback, AudioEngineAnalyzer analyzer) {
     audio_engine = malloc(sizeof(AudioEngine));
     audio_engine->amplitude = 0.0f;
     audio_engine->callback = callback;
+    audio_engine->analyzer = analyzer;
 
     /* Initialize AudioEngine's config */
     audio_engine->config = ma_device_config_init(ma_device_type_playback);
@@ -64,6 +65,8 @@ void _audio_engine_callback(ma_device* device, void* output, const void* input, 
             memset(buffer, 0, frame_count * 2 * sizeof(float));
             break;
     }
+
+    audio_engine->analyzer(buffer, frame_count);
 }
 
 void fade_in(float *buffer, unsigned int frame_count) {

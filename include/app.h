@@ -3,6 +3,13 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "ring_buffer.h"
+
+typedef struct {
+    RingBuffer *samples;
+} App ;
+
+static App *app = NULL;
 
 void app_init();
 void app_free();

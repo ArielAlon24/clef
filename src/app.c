@@ -4,9 +4,10 @@
 #include <raylib.h>
 #include <math.h>
 #include <stdlib.h>
+#include <assert.h>
 
 #define SAMPLE_RATE 44100
-#define FREQUENCY 440.0
+#define FREQUENCY 110.0
 #define AMPLITUDE 0.2
 #define TWO_PI 6.28318530718
 
@@ -28,14 +29,26 @@ void callback(float *buffer, unsigned int frame_count) {
     generate_sine_wave(buffer, frame_count, FREQUENCY, AMPLITUDE, SAMPLE_RATE);
 }
 
+void analyzer(const float *buffer, unsigned int frame_count) {
+    ring_buffer_insert(app->samples, buffer, frame_count);
+}
+
 void app_init() {
-    audio_engine_init(callback);
+    app = malloc(sizeof(App));
+    assert(app != NULL);
+
+    app->samples = ring_buffer_init(400);
+
+    audio_engine_init(callback, analyzer);
     window_init(500, 500);
 }
 
 void app_free() {
     window_free();
     audio_engine_free();
+
+    ring_buffer_free(app->samples);
+    free(app);
 }
 
 void app_run() {
@@ -63,6 +76,10 @@ void app_render() {
             DrawText("Playing", 10, 10, 20, BLACK);
         } else {
             DrawText("Paused", 10, 10, 20, BLACK);
+        }
+
+        for (int i = 0; i < app->samples->size; ++i) {
+            DrawCircle(10 + i, 100 + 200 * app->samples->buffer[i], 4, BLACK);
         }
 
     EndDrawing();
