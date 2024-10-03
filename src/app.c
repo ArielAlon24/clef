@@ -1,7 +1,7 @@
 #include "app.h"
 #include "window.h"
 #include "audio_engine.h"
-#include "raylib.h"
+#include <raylib.h>
 #include <math.h>
 #include <stdlib.h>
 

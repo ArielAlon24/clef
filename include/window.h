@@ -2,8 +2,8 @@
 #define WINDOW_H
 
 #include <raylib.h>
-#include <stdio.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 #define FPS 60
 

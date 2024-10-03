@@ -1,7 +1,7 @@
 #ifndef AUDIO_ENGINE_H
 #define AUDIO_ENGINE_H
 
-#include "miniaudio.h"
+#include <miniaudio.h>
 #include <pthread.h>
 
 #define SAMPLE_RATE     44100
