@@ -32,7 +32,7 @@ typedef struct {
     ma_device device;
     ma_device_config config;
     AudioEngineCallback callback;
-    pthread_mutex_t lock; /* TODO: Use a write only lock */
+    pthread_rwlock_t lock; /* TODO: Use a write only lock */
     AudioEngineState state;
     float amplitude; /* An inner amplitude value (between 0 and 1) used for fade-in and fade-out */
 } AudioEngine;

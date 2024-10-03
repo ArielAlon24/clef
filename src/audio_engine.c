@@ -29,7 +29,7 @@ void audio_engine_init(AudioEngineCallback callback) {
     }
 
     /* Start the audio device (non-blocking) */
-    pthread_mutex_init(&audio_engine->lock, NULL);
+    pthread_rwlock_init(&audio_engine->lock, NULL);
     audio_engine->state = STATE_PAUSED;
     result = ma_device_start(&audio_engine->device);
     if (result != MA_SUCCESS) {
@@ -106,16 +106,13 @@ void audio_engine_play() { _audio_engine_set_state(STATE_PLAY); }
 void audio_engine_pause() { _audio_engine_set_state(STATE_PAUSE); }
 
 void _audio_engine_set_state(AudioEngineState state) {
-    pthread_mutex_lock(&audio_engine->lock);
+    pthread_rwlock_wrlock(&audio_engine->lock);
     audio_engine->state = state;
-    pthread_mutex_unlock(&audio_engine->lock);
+    pthread_rwlock_unlock(&audio_engine->lock);
 }
 
 AudioEngineState _audio_engine_get_state(void) {
-    pthread_mutex_lock(&audio_engine->lock);
-    AudioEngineState state = audio_engine->state;
-    pthread_mutex_unlock(&audio_engine->lock);
-    return state;
+    return audio_engine->state;
 }
 
 bool audio_engine_is_playing() {
