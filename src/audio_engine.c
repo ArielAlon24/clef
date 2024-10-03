@@ -4,6 +4,7 @@
 #include <miniaudio.h>
 #include <stdio.h>
 #include <pthread.h>
+#include <stdbool.h>
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
@@ -115,4 +116,8 @@ AudioEngineState _audio_engine_get_state(void) {
     AudioEngineState state = audio_engine->state;
     pthread_mutex_unlock(&audio_engine->lock);
     return state;
+}
+
+bool audio_engine_is_playing() {
+    return _audio_engine_get_state() != STATE_PAUSED;
 }
