@@ -15,6 +15,10 @@ void ring_buffer_free(RingBuffer *ring_buffer);
 
 void ring_buffer_insert(RingBuffer *ring_buffer, const float *buffer, size_t buffer_size);
 
+void ring_buffer_push(RingBuffer *ring_buffer, float value);
+
+size_t ring_buffer_find(RingBuffer *ring_buffer, float value, float epsilon);
+
 void ring_buffer_print(RingBuffer *ring_buffer);
 
 #endif

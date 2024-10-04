@@ -2,19 +2,18 @@
 #include "window.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 
 void window_init(int width, int height) {
     window = malloc(sizeof(Window));
-    if (window == NULL) {
-        fprintf(stderr, "Could not initialize window");
-        exit(1);
-    }
+    assert(window != NULL);
 
     window->width = width;
     window->height = height;
     window->should_close = false;
 
     SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT);
+    SetTargetFPS(FPS);
     InitWindow(width, height, "clef");
 }
 

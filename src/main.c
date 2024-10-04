@@ -1,5 +1,4 @@
 #include "app.h"
-#include "ring_buffer.h"
 
 int main(void) {
     app_init();
