@@ -8,7 +8,7 @@
 
 #define SAMPLE_RATE 44100
 float frequency = 600.0f;
-#define AMPLITUDE 0.5
+#define AMPLITUDE 0.2
 #define TWO_PI 6.28318530718
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
@@ -20,8 +20,10 @@ void generate_weird_wave(float* buffer, size_t frame_count, float frequency, flo
         amplitude = 0;
     }
     for (size_t i = 0; i < frame_count * 2; i += 2) {
-        buffer[i] = (sinf(phase) >= 0.0f) ? amplitude : -amplitude; /* Square wave in the right channel */
-        buffer[i + 1] = amplitude * sinf(phase);                    /* Sine wave in the left channel */
+        // buffer[i] = (sinf(phase) >= 0.0f) ? amplitude : -amplitude;
+        // buffer[i + 1] = (sinf(phase) >= 0.0f) ? amplitude : -amplitude;
+        buffer[i] = amplitude * sinf(phase);
+        buffer[i + 1] = amplitude * sinf(phase);
         phase += (TWO_PI * frequency) / sample_rate;
 
         if (phase > TWO_PI) { phase -= TWO_PI; }
@@ -67,7 +69,7 @@ void app_free() {
 }
 
 void app_run() {
-    while(!window_should_close()) {
+    while (!window_should_close()) {
         app_update();
         app_render();
     }
@@ -100,13 +102,13 @@ void app_render() {
             DrawText("Paused", 10, 10, 20, BLACK);
         }
 
-        DrawRectangle(10, 50 - 1, window_width() - 20, 200 + 2, GRAY);
-        DrawRectangle(10, 250 - 1, window_width() - 20, 200 + 2, GRAY);
+        DrawRectangle(10, 50 - 1, window_width() - 20, 200 + 2, LIGHTGRAY);
+        DrawRectangle(10, 250 - 1, window_width() - 20, 200 + 2, LIGHTGRAY);
 
         pthread_mutex_lock(&app->samples_lock);
 
         /* Drawing left channel samples */
-        size_t trigger_index = ring_buffer_find(app->left_samples, 0.0, 0.1);
+        size_t trigger_index = ring_buffer_find(app->left_samples, 0.0);
         size_t buffer_size = app->left_samples->size;
         int width = window_width() - 20;
         float* buffer = app->left_samples->buffer;
@@ -120,13 +122,14 @@ void app_render() {
         }
 
         /* Drawing right channel samples */
-        trigger_index = ring_buffer_find(app->right_samples, 0.0, 0.1);
+        trigger_index = ring_buffer_find(app->right_samples, 0.0);
         buffer_size = app->right_samples->size;
         width = window_width() - 20;
         buffer = app->right_samples->buffer;
 
+        v0.y = buffer[trigger_index] * 100 + 350;
         v0.x = 10;
-        v0.y = 350;
+
         for (int i = 0; i < width; ++i) {
             v1.x = 10 + i;
             v1.y = 350 + 100 * buffer[(trigger_index + i) % buffer_size];

@@ -36,7 +36,7 @@ void ring_buffer_push(RingBuffer *ring_buffer, float value) {
     ring_buffer->index = (ring_buffer->index + 1) % ring_buffer->size;
 }
 
-size_t ring_buffer_find(RingBuffer *ring_buffer, float value, float epsilon) {
+size_t ring_buffer_find(RingBuffer *ring_buffer, float value) {
     /* Loop through all elements in the buffer, starting in index */
     size_t index = ring_buffer->index + 1;
     for (size_t i = 0; i < ring_buffer->size; ++i) {
@@ -47,8 +47,8 @@ size_t ring_buffer_find(RingBuffer *ring_buffer, float value, float epsilon) {
         float curr = ring_buffer->buffer[index];
         float next = ring_buffer->buffer[(index + 1) % ring_buffer->size];
 
-        /* If `prev` <= `value` <= `next` and differs |`curr` - `value`|  < `epsilon` */
-        if (prev <= value && next >= value && fabs(curr - value) < epsilon) {
+        /* If `prev` <= `value` <= `next` */
+        if (prev <= value && next >= value) {
             return index;
         }
 
