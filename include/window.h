@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#define FPS 200
+#define FPS 60
 
 typedef struct {
     int width;

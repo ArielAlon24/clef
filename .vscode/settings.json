@@ -4,6 +4,12 @@
         "*.jsx": "javascriptreact",
         "audio_engine.h": "c",
         "__locale": "c",
-        "ring_buffer.h": "c"
+        "ring_buffer.h": "c",
+        "stdio.h": "c",
+        "midi_stream.h": "c",
+        "stdbool.h": "c",
+        "window.h": "c",
+        "app.h": "c",
+        "*.m": "c"
     }
 }

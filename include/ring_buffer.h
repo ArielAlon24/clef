@@ -3,6 +3,8 @@
 
 #include <stddef.h>
 
+/* TODO: Make the RingBuffer be work with both left and right samples together */
+
 typedef struct {
     float *buffer;
     size_t size;

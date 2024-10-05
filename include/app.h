@@ -5,11 +5,14 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include "ring_buffer.h"
+#include "midi_stream.h"
 
 typedef struct {
     RingBuffer *right_samples;
     RingBuffer *left_samples;
     pthread_mutex_t samples_lock;
+
+    MidiStream *midi_stream;
 } App ;
 
 static App *app = NULL;

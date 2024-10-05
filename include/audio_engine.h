@@ -5,7 +5,7 @@
 #include <pthread.h>
 
 #define SAMPLE_RATE     44100
-#define FADE_SPEED_RATE 0.01f
+#define FADE_SPEED_RATE 0.5f
 
 typedef void (* AudioEngineCallback)(float* buffer, unsigned int frame_count);
 typedef void (* AudioEngineAnalyzer)(const float *buffer, unsigned int frame_count);

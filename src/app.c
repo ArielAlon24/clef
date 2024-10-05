@@ -1,19 +1,20 @@
 #include "app.h"
 #include "window.h"
 #include "audio_engine.h"
+#include "midi.h"
 #include <raylib.h>
 #include <math.h>
 #include <stdlib.h>
 #include <assert.h>
 
 #define SAMPLE_RATE 44100
-float frequency = 600.0f;
-#define AMPLITUDE 0.2
 #define TWO_PI 6.28318530718
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
+static float frequency = 600.0f;
+static float amplitude = 0.2f;
 void generate_weird_wave(float* buffer, size_t frame_count, float frequency, float amplitude, float sample_rate) {
     static float phase = 0.0f;
     if (frequency == 0.0) {
@@ -31,7 +32,20 @@ void generate_weird_wave(float* buffer, size_t frame_count, float frequency, flo
 }
 
 void callback(float *buffer, unsigned int frame_count) {
-    generate_weird_wave(buffer, frame_count, frequency, AMPLITUDE, SAMPLE_RATE);
+    MidiMessage message;
+    while (midi_stream_read(app->midi_stream, &message)) {
+        switch (message.type) {
+            case MIDI_MESSAGE_NOTE_ON:
+                frequency = note_number_to_frequency(message.data.two[0]);
+                amplitude = (float)message.data.two[1] / 100;
+                break;
+            default:
+                printf("Not implemented\n");
+                break;
+        }
+    }
+
+    generate_weird_wave(buffer, frame_count, frequency, amplitude, SAMPLE_RATE);
 }
 
 void analyzer(const float *buffer, unsigned int frame_count) {
@@ -49,8 +63,9 @@ void app_init() {
 
     app->right_samples = ring_buffer_init(SAMPLE_RATE / 10);
     app->left_samples = ring_buffer_init(SAMPLE_RATE / 10);
-
     pthread_mutex_init(&app->samples_lock, NULL);
+
+    app->midi_stream = midi_stream_init();
 
     audio_engine_init(callback, analyzer);
     window_init(500, 500);
@@ -84,11 +99,60 @@ void app_update() {
             audio_engine_play();
         }
     }
-    int mouse_x = GetMouseX();
-    frequency = MAX((float)mouse_x / (float)GetScreenWidth() * 5000.0, 0);
 
-    if (IsKeyDown(KEY_UP)) frequency = MIN(5000.0, frequency + 50.0);
-    if (IsKeyDown(KEY_DOWN)) frequency = MAX(0.0, frequency - 50.0);
+    MidiMessage message;
+    if (IsKeyPressed(KEY_A)) {
+        MIDI_MESSAGE2(message, MIDI_MESSAGE_NOTE_ON, 60, 80); /* C4 */
+        midi_stream_write(app->midi_stream, &message);
+    }
+    if (IsKeyPressed(KEY_W)) {
+        MIDI_MESSAGE2(message, MIDI_MESSAGE_NOTE_ON, 61, 80);  /* C#4 */
+        midi_stream_write(app->midi_stream, &message);
+    }
+    if (IsKeyPressed(KEY_S)) {
+        MIDI_MESSAGE2(message, MIDI_MESSAGE_NOTE_ON, 62, 80);  /* D4 */
+        midi_stream_write(app->midi_stream, &message);
+    }
+    if (IsKeyPressed(KEY_E)) {
+        MIDI_MESSAGE2(message, MIDI_MESSAGE_NOTE_ON, 63, 80);  /* D#4 */
+        midi_stream_write(app->midi_stream, &message);
+    }
+    if (IsKeyPressed(KEY_D)) {
+        MIDI_MESSAGE2(message, MIDI_MESSAGE_NOTE_ON, 64, 80);  /* E4 */
+        midi_stream_write(app->midi_stream, &message);
+    }
+    if (IsKeyPressed(KEY_F)) {
+        MIDI_MESSAGE2(message, MIDI_MESSAGE_NOTE_ON, 65, 80);  /* F4 */
+        midi_stream_write(app->midi_stream, &message);
+    }
+    if (IsKeyPressed(KEY_T)) {
+        MIDI_MESSAGE2(message, MIDI_MESSAGE_NOTE_ON, 66, 80);  /* F#4 */
+        midi_stream_write(app->midi_stream, &message);
+    }
+    if (IsKeyPressed(KEY_G)) {
+        MIDI_MESSAGE2(message, MIDI_MESSAGE_NOTE_ON, 67, 80);  /* G4 */
+        midi_stream_write(app->midi_stream, &message);
+    }
+    if (IsKeyPressed(KEY_Y)) {
+        MIDI_MESSAGE2(message, MIDI_MESSAGE_NOTE_ON, 68, 80);  /* G#4 */
+        midi_stream_write(app->midi_stream, &message);
+    }
+    if (IsKeyPressed(KEY_H)) {
+        MIDI_MESSAGE2(message, MIDI_MESSAGE_NOTE_ON, 69, 80);  /* A4 */
+        midi_stream_write(app->midi_stream, &message);
+    }
+    if (IsKeyPressed(KEY_U)) {
+        MIDI_MESSAGE2(message, MIDI_MESSAGE_NOTE_ON, 70, 80);  /* A#4 */
+        midi_stream_write(app->midi_stream, &message);
+    }
+    if (IsKeyPressed(KEY_J)) {
+        MIDI_MESSAGE2(message, MIDI_MESSAGE_NOTE_ON, 71, 80);  /* B4 */
+        midi_stream_write(app->midi_stream, &message);
+    }
+    if (IsKeyPressed(KEY_K)) {
+        MIDI_MESSAGE2(message, MIDI_MESSAGE_NOTE_ON, 72, 80);  /* C5 */
+        midi_stream_write(app->midi_stream, &message);
+    }
 }
 
 void app_render() {
