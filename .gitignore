@@ -1,3 +1,4 @@
 clef
 build/
 debug/
+.vscode/
