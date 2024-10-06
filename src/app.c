@@ -2,50 +2,29 @@
 #include "window.h"
 #include "audio_engine.h"
 #include "midi.h"
+#include "oscillator.h"
 #include <raylib.h>
 #include <math.h>
 #include <stdlib.h>
 #include <assert.h>
-
-#define SAMPLE_RATE 44100
-#define TWO_PI 6.28318530718
-
-#define MAX(a, b) ((a) > (b) ? (a) : (b))
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
-
-static float frequency = 600.0f;
-static float amplitude = 0.2f;
-void generate_weird_wave(float* buffer, size_t frame_count, float frequency, float amplitude, float sample_rate) {
-    static float phase = 0.0f;
-    if (frequency == 0.0) {
-        amplitude = 0;
-    }
-    for (size_t i = 0; i < frame_count * 2; i += 2) {
-        // buffer[i] = (sinf(phase) >= 0.0f) ? amplitude : -amplitude;
-        // buffer[i + 1] = (sinf(phase) >= 0.0f) ? amplitude : -amplitude;
-        buffer[i] = amplitude * sinf(phase);
-        buffer[i + 1] = amplitude * sinf(phase);
-        phase += (TWO_PI * frequency) / sample_rate;
-
-        if (phase > TWO_PI) { phase -= TWO_PI; }
-    }
-}
+#include "macros.h"
+#include <string.h>
 
 void callback(float *buffer, unsigned int frame_count) {
     MidiMessage message;
     while (midi_stream_read(app->midi_stream, &message)) {
         switch (message.type) {
             case MIDI_MESSAGE_NOTE_ON:
-                frequency = note_number_to_frequency(message.data.two[0]);
-                amplitude = (float)message.data.two[1] / 100;
+                app->oscillator->frequency = note_number_to_frequency(message.data.two[0]);
+                app->oscillator->amplitude = (float)message.data.two[1] / 100;
                 break;
             default:
-                printf("Not implemented\n");
-                break;
+                NOT_IMPLEMENTED
         }
     }
 
-    generate_weird_wave(buffer, frame_count, frequency, amplitude, SAMPLE_RATE);
+    oscillator_next(app->oscillator, buffer, frame_count);
+
 }
 
 void analyzer(const float *buffer, unsigned int frame_count) {
@@ -65,6 +44,8 @@ void app_init() {
     app->left_samples = ring_buffer_init(SAMPLE_RATE / 10);
     pthread_mutex_init(&app->samples_lock, NULL);
 
+    app->oscillator = oscillator_init(OSCILLATOR_SINE, 440.0, 0.5);
+
     app->midi_stream = midi_stream_init();
 
     audio_engine_init(callback, analyzer);
@@ -77,8 +58,11 @@ void app_free() {
 
     ring_buffer_free(app->right_samples);
     ring_buffer_free(app->left_samples);
-
     pthread_mutex_destroy(&app->samples_lock);
+
+    oscillator_free(app->oscillator);
+
+    midi_stream_free(app->midi_stream);
 
     free(app);
 }
@@ -160,7 +144,7 @@ void app_render() {
         ClearBackground(RAYWHITE);
         if (audio_engine_is_playing()) {
             char text[20];
-            sprintf(text, "Playing (%.1f Hz)", frequency);
+            sprintf(text, "Playing (%.1f Hz)", app->oscillator->frequency);
             DrawText(text, 10, 10, 20, BLACK);
         } else {
             DrawText("Paused", 10, 10, 20, BLACK);

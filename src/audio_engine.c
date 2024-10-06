@@ -1,13 +1,11 @@
 #define MINIAUDIO_IMPLEMENTATION
 
 #include "audio_engine.h"
+#include "macros.h"
 #include <miniaudio.h>
 #include <stdio.h>
 #include <pthread.h>
 #include <stdbool.h>
-
-#define MAX(a, b) ((a) > (b) ? (a) : (b))
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
 
 void audio_engine_init(AudioEngineCallback callback, AudioEngineAnalyzer analyzer) {
     audio_engine = malloc(sizeof(AudioEngine));
@@ -41,6 +39,8 @@ void audio_engine_init(AudioEngineCallback callback, AudioEngineAnalyzer analyze
 
 void _audio_engine_callback(ma_device* device, void* output, const void* input, ma_uint32 frame_count) {
     float *buffer = (float *)output;
+    memset(buffer, 0, frame_count * 2 * sizeof(float));
+
     AudioEngineState state = _audio_engine_get_state();
 
     switch (state) {
@@ -62,7 +62,6 @@ void _audio_engine_callback(ma_device* device, void* output, const void* input, 
             audio_engine->callback(buffer, frame_count);
             break;
         case STATE_PAUSED:
-            memset(buffer, 0, frame_count * 2 * sizeof(float));
             break;
     }
 
