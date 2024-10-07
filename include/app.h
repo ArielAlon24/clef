@@ -6,11 +6,11 @@
 #include <pthread.h>
 #include "sample_buffer.h"
 #include "midi_stream.h"
-#include "oscillator.h"
+#include "rack/rack.h"
 
 typedef struct {
     SampleBuffer *sample_buffer;
-    Oscillator *oscillator;
+    Rack *rack;
     MidiStream *midi_stream;
 } App ;
 

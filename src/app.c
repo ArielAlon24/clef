@@ -1,29 +1,18 @@
+#include <raylib.h>
+#include <stdlib.h>
+#include <string.h>
 #include "app.h"
 #include "window.h"
 #include "audio_engine.h"
 #include "midi.h"
-#include "oscillator.h"
-#include <raylib.h>
-#include <stdlib.h>
+#include "components/oscillator.h"
 #include <assert.h>
 #include "macros.h"
 #include "oscilloscope.h"
-#include <string.h>
+#include "rack/rack.h"
 
 void callback(float *buffer, unsigned int frame_count) {
-    MidiMessage message;
-    while (midi_stream_read(app->midi_stream, &message)) {
-        switch (message.type) {
-            case MIDI_MESSAGE_NOTE_ON:
-                app->oscillator->frequency = note_number_to_frequency(message.data.two[0]);
-                app->oscillator->amplitude = (float)message.data.two[1] / 100;
-                break;
-            default:
-                NOT_IMPLEMENTED
-        }
-    }
-
-    oscillator_next(app->oscillator, buffer, frame_count);
+    rack_next(app->rack, app->midi_stream, buffer, frame_count);
 }
 
 void analyzer(const float *buffer, unsigned int frame_count) {
@@ -35,9 +24,8 @@ void app_init() {
     assert(app != NULL);
 
     app->sample_buffer = sample_buffer_init(SAMPLE_RATE / 10);
-    app->oscillator = oscillator_init(OSCILLATOR_SINE, 440.0, 0.5);
-
     app->midi_stream = midi_stream_init();
+    app->rack = rack_init(5);
 
     audio_engine_init(callback, analyzer);
     window_init(500, 500);
@@ -48,7 +36,7 @@ void app_free() {
     audio_engine_free();
 
     sample_buffer_free(app->sample_buffer);
-    oscillator_free(app->oscillator);
+    rack_free(app->rack);
     midi_stream_free(app->midi_stream);
 
     free(app);
@@ -69,6 +57,11 @@ void app_update() {
         } else {
             audio_engine_play();
         }
+    }
+
+    if (IsKeyPressed(KEY_ENTER) && !IsKeyPressedRepeat(KEY_ENTER)) {
+        Component *oscillator = oscillator_init(OSCILLATOR_SINE, 440.0f, 0.5);
+        rack_mount(app->rack, oscillator, 0, 0);
     }
 
     MidiMessage message;
@@ -130,9 +123,7 @@ void app_render() {
     BeginDrawing();
         ClearBackground(RAYWHITE);
         if (audio_engine_is_playing()) {
-            char text[20];
-            sprintf(text, "Playing (%.1f Hz)", app->oscillator->frequency);
-            DrawText(text, 10, 10, 20, BLACK);
+            DrawText("Playing", 10, 10, 20, BLACK);
         } else {
             DrawText("Paused", 10, 10, 20, BLACK);
         }

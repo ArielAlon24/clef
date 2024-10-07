@@ -3,10 +3,10 @@
 
 /* A thread safe message queue for `MidiMessage`s */
 
-#include "midi.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include <pthread.h>
+#include "midi.h"
 
 #define MIDI_STREAM_MAX_SIZE (100)
 

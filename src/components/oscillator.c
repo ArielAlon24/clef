@@ -1,10 +1,10 @@
-#include "oscillator.h"
+#include "components/oscillator.h"
 #include "macros.h"
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
 
-Oscillator *oscillator_init(OscillatorType type, float frequency, float amplitude) {
+Component *oscillator_init(OscillatorType type, float frequency, float amplitude) {
     Oscillator *oscillator = malloc(sizeof(Oscillator));
     assert(oscillator != NULL);
 
@@ -13,10 +13,13 @@ Oscillator *oscillator_init(OscillatorType type, float frequency, float amplitud
     oscillator->amplitude = amplitude;
     oscillator->phase = 0.0f;
 
-    return oscillator;
+    Component *component = component_init(oscillator_next, NULL, oscillator_free, oscillator);
+
+    return component;
 }
 
-void oscillator_next(Oscillator *oscillator, float *buffer, size_t frame_count) {
+void oscillator_next(void *state, float *buffer, unsigned int frame_count) {
+    Oscillator *oscillator = (Oscillator *)state;
     /* If frequency is 0Hz, mute the oscillator */
     if (oscillator->frequency == 0.0f) return;
 
@@ -32,8 +35,8 @@ void oscillator_next(Oscillator *oscillator, float *buffer, size_t frame_count) 
     }
 }
 
-void _oscillator_sine_next(Oscillator *oscillator, float *buffer, size_t frame_count) {
-    for (size_t i = 0; i < frame_count * 2; i += 2) {
+void _oscillator_sine_next(Oscillator *oscillator, float *buffer, unsigned int frame_count) {
+    for (unsigned int i = 0; i < frame_count * 2; i += 2) {
         float sample = oscillator->amplitude * sinf(oscillator->phase);
         buffer[i] += sample;
         buffer[i + 1] += sample;
@@ -43,8 +46,8 @@ void _oscillator_sine_next(Oscillator *oscillator, float *buffer, size_t frame_c
     }
 }
 
-void _oscillator_square_next(Oscillator *oscillator, float *buffer, size_t frame_count) {
-    for (size_t i = 0; i < frame_count * 2; i += 2) {
+void _oscillator_square_next(Oscillator *oscillator, float *buffer, unsigned int frame_count) {
+    for (unsigned int i = 0; i < frame_count * 2; i += 2) {
         float sample = (sinf(oscillator->phase) >= 0.0f) ? oscillator->amplitude : -oscillator->amplitude;
         buffer[i] = sample;
         buffer[i + 1] = sample;
@@ -53,9 +56,9 @@ void _oscillator_square_next(Oscillator *oscillator, float *buffer, size_t frame
         if (oscillator->phase > TWO_PI) { oscillator->phase -= TWO_PI; }
     }
 }
-void _oscillator_triangle_next(Oscillator *oscillator, float *buffer, size_t frame_count) { NOT_IMPLEMENTED }
-void _oscillator_sawtooth_next(Oscillator *oscillator, float *buffer, size_t frame_count) { NOT_IMPLEMENTED }
+void _oscillator_triangle_next(Oscillator *oscillator, float *buffer, unsigned int frame_count) { NOT_IMPLEMENTED }
+void _oscillator_sawtooth_next(Oscillator *oscillator, float *buffer, unsigned int frame_count) { NOT_IMPLEMENTED }
 
-void oscillator_free(Oscillator *oscillator) {
-    free(oscillator);
+void oscillator_free(void *state) {
+    free((Oscillator *)state);
 }

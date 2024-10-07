@@ -1,6 +1,6 @@
-#include "oscillator.h"
-#include "sample_buffer.h"
 #include <raylib.h>
+#include "oscilloscope.h"
+#include "sample_buffer.h"
 
 void render_oscilloscope(SampleBuffer *sample_buffer, Vector2 position, Vector2 size) {
     DrawRectangleV(position, size, LIGHTGRAY);
