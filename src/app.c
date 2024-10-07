@@ -1,14 +1,14 @@
 #include <raylib.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 #include "app.h"
 #include "window.h"
-#include "audio_engine.h"
-#include "midi.h"
-#include "components/oscillator.h"
-#include <assert.h>
 #include "macros.h"
+#include "audio_engine.h"
 #include "oscilloscope.h"
+#include "midi/midi.h"
+#include "components/oscillator.h"
 #include "rack/rack.h"
 
 void callback(float *buffer, unsigned int frame_count) {

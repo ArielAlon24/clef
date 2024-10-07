@@ -1,10 +1,10 @@
 #ifndef RACK_H
 #define RACK_H
 
-#include "midi_stream.h"
-#include "rack/component.h"
 #include <raylib.h>
 #include <pthread.h>
+#include "midi_stream.h"
+#include "rack/component.h"
 
 typedef struct {
     int size;

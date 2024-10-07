@@ -1,8 +1,8 @@
-#include "raylib.h"
-#include "window.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include "raylib.h"
+#include "window.h"
 
 void window_init(int width, int height) {
     window = malloc(sizeof(Window));

@@ -1,4 +1,4 @@
-#include "midi.h"
+#include "midi/midi.h"
 #include <math.h>
 
 /* TODO: Transform into an array lookup */

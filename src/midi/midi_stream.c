@@ -1,8 +1,9 @@
-#include "midi_stream.h"
-#include "stdbool.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "midi/midi_stream.h"
+#include "midi/midi.h"
+#include "stdbool.h"
 
 MidiStream *midi_stream_init() {
     MidiStream *stream = (MidiStream *)malloc(sizeof(MidiStream));

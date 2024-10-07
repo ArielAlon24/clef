@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include "sample_buffer.h"
-#include "midi_stream.h"
+#include "midi/midi_stream.h"
 #include "rack/rack.h"
 
 typedef struct {

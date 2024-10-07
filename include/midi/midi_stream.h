@@ -6,7 +6,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <pthread.h>
-#include "midi.h"
+#include "midi/midi.h"
 
 #define MIDI_STREAM_MAX_SIZE (100)
 
