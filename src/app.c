@@ -64,6 +64,18 @@ void app_update() {
         rack_mount(app->rack, oscillator, 0, 0);
     }
 
+    if (IsKeyPressed(KEY_BACKSPACE) && !IsKeyPressedRepeat(KEY_BACKSPACE)) {
+        rack_unmount(app->rack, 0, 0);
+    }
+
+    if (IsKeyPressed(KEY_TAB) && !IsKeyPressedRepeat(KEY_TAB)) {
+        Rack *new_rack = rack_init(5);
+        Component *new_rack_comp = rack_component_init(new_rack);
+        Component *new_osc = oscillator_init(OSCILLATOR_SINE, 880.0f, 0.5);
+        rack_mount(new_rack, new_osc, 0, 0);
+        rack_mount(app->rack, new_rack_comp, 0, 1);
+    }
+
     MidiMessage message;
     if (IsKeyPressed(KEY_A)) {
         MIDI_MESSAGE2(message, MIDI_MESSAGE_NOTE_ON, 60, 80); /* C4 */

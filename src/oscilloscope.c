@@ -10,6 +10,7 @@ void render_oscilloscope(SampleBuffer *sample_buffer, Vector2 position, Vector2 
     DrawLine(position.x, position.y + quarter_height * 2, position.x + size.x, position.y + quarter_height * 2, RAYWHITE);
 
     size_t trigger_index = sample_buffer_find_left(sample_buffer, 0.0f);
+
     size_t buffer_size = sample_buffer_size(sample_buffer);
     float* buffer = sample_buffer_left(sample_buffer);
 

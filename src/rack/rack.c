@@ -15,6 +15,10 @@ Rack *rack_init(int size) {
     return rack;
 }
 
+Component *rack_component_init(Rack *rack) {
+    return component_init(rack_audio_callback, rack_midi_callback, rack_state_destructor, rack);
+}
+
 void rack_mount(Rack *rack, Component *component, int x, int y) {
     pthread_mutex_lock(&rack->lock);
     int index = rack->size * y + x;
@@ -65,10 +69,41 @@ void rack_next(Rack *rack, MidiStream *midi_stream, float *buffer, unsigned int 
     for (int i = 0; i < rack->size * rack->size; ++i) {
         component = rack->components[i];
         if (component != NULL) {
-            component_next(component, midi_stream, buffer, buffer_size);
+            component_next_midi(component, midi_stream);
+            component_next_audio(component, buffer, buffer_size);
         }
     }
     pthread_mutex_unlock(&rack->lock);
+}
+
+void rack_audio_callback(void *state, float *buffer, unsigned int buffer_size) {
+    Rack *rack = (Rack *)state;
+    pthread_mutex_lock(&rack->lock);
+    Component *component;
+    for (int i = 0; i < rack->size * rack->size; ++i) {
+        component = rack->components[i];
+        if (component != NULL) {
+            component_next_audio(component, buffer, buffer_size);
+        }
+    }
+    pthread_mutex_unlock(&rack->lock);
+}
+
+void rack_midi_callback(void *state, MidiStream *midi_stream) {
+    Rack *rack = (Rack *)state;
+    pthread_mutex_lock(&rack->lock);
+    Component *component;
+    for (int i = 0; i < rack->size * rack->size; ++i) {
+        component = rack->components[i];
+        if (component != NULL) {
+            component_next_midi(component, midi_stream);
+        }
+    }
+    pthread_mutex_unlock(&rack->lock);
+}
+
+void rack_state_destructor(void *state) {
+    rack_free((Rack *)state);
 }
 
 void rack_free(Rack *rack) {

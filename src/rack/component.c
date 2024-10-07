@@ -1,5 +1,5 @@
 #include "rack/component.h"
-#include "midi_stream.h"
+#include "midi/midi_stream.h"
 #include <stdlib.h>
 #include <assert.h>
 
@@ -17,9 +17,16 @@ Component *component_init(ComponentAudioCallback audio_callback,
     return component;
 }
 
-void component_next(Component *component, MidiStream *midi_stream, float *buffer, unsigned int buffer_size) {
-    if (component->midi_callback != NULL) component->midi_callback(component->state, midi_stream);
-    if (component->audio_callback != NULL) component->audio_callback(component->state, buffer, buffer_size);
+void component_next_audio(Component *component, float *buffer, unsigned int buffer_size) {
+    if (component->audio_callback != NULL) {
+        component->audio_callback(component->state, buffer, buffer_size);
+    }
+}
+
+void component_next_midi(Component *component, MidiStream *midi_stream) {
+    if (component->midi_callback != NULL) {
+        component->midi_callback(component->state, midi_stream);
+    }
 }
 
 void component_free(Component *component) {

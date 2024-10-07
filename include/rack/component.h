@@ -1,7 +1,7 @@
 #ifndef COMPONENT_H
 #define COMPONENT_H
 
-#include "midi_stream.h"
+#include "midi/midi_stream.h"
 
 typedef void (*ComponentAudioCallback)(void *state, float *buffer, unsigned int buffer_size);
 typedef void (*ComponentMidiCallback)(void *state, MidiStream *midi_stream);
@@ -23,7 +23,9 @@ Component *component_init(ComponentAudioCallback audio_callback,
                           ComponentMidiCallback midi_callback,
                           ComponentStateDestructor state_destructor, void *state);
 
-void component_next(Component *component, MidiStream *midi_stream, float *buffer, unsigned int buffer_size);
+void component_next_audio(Component *component, float *buffer, unsigned int buffer_size);
+
+void component_next_midi(Component *component, MidiStream *midi_stream);
 
 void component_free(Component *component);
 
