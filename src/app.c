@@ -4,10 +4,10 @@
 #include "midi.h"
 #include "oscillator.h"
 #include <raylib.h>
-#include <math.h>
 #include <stdlib.h>
 #include <assert.h>
 #include "macros.h"
+#include "oscilloscope.h"
 #include <string.h>
 
 void callback(float *buffer, unsigned int frame_count) {
@@ -24,26 +24,17 @@ void callback(float *buffer, unsigned int frame_count) {
     }
 
     oscillator_next(app->oscillator, buffer, frame_count);
-
 }
 
 void analyzer(const float *buffer, unsigned int frame_count) {
-    pthread_mutex_lock(&app->samples_lock);
-    for (int i = 0; i < frame_count * 2; i += 2) {
-        ring_buffer_push(app->right_samples, buffer[i]);
-        ring_buffer_push(app->left_samples, buffer[i + 1]);
-    }
-    pthread_mutex_unlock(&app->samples_lock);
+    sample_buffer_push(app->sample_buffer, buffer, frame_count);
 }
 
 void app_init() {
     app = malloc(sizeof(App));
     assert(app != NULL);
 
-    app->right_samples = ring_buffer_init(SAMPLE_RATE / 10);
-    app->left_samples = ring_buffer_init(SAMPLE_RATE / 10);
-    pthread_mutex_init(&app->samples_lock, NULL);
-
+    app->sample_buffer = sample_buffer_init(SAMPLE_RATE / 10);
     app->oscillator = oscillator_init(OSCILLATOR_SINE, 440.0, 0.5);
 
     app->midi_stream = midi_stream_init();
@@ -56,12 +47,8 @@ void app_free() {
     window_free();
     audio_engine_free();
 
-    ring_buffer_free(app->right_samples);
-    ring_buffer_free(app->left_samples);
-    pthread_mutex_destroy(&app->samples_lock);
-
+    sample_buffer_free(app->sample_buffer);
     oscillator_free(app->oscillator);
-
     midi_stream_free(app->midi_stream);
 
     free(app);
@@ -150,44 +137,9 @@ void app_render() {
             DrawText("Paused", 10, 10, 20, BLACK);
         }
 
-        DrawRectangle(10, 50 - 1, window_width() - 20, 200 + 2, LIGHTGRAY);
-        DrawRectangle(10, 250 - 1, window_width() - 20, 200 + 2, LIGHTGRAY);
+        Vector2 position = {10, 50};
+        Vector2 size = {window_width() - 20, 200};
+        render_oscilloscope(app->sample_buffer, position, size);
 
-        pthread_mutex_lock(&app->samples_lock);
-
-        /* Drawing left channel samples */
-        size_t trigger_index = ring_buffer_find(app->left_samples, 0.0);
-        size_t buffer_size = app->left_samples->size;
-        int width = window_width() - 20;
-        float* buffer = app->left_samples->buffer;
-
-        Vector2 v0 = {10, 150}, v1;
-        for (int i = 0; i < width; ++i) {
-            v1.x = 10 + i;
-            v1.y = 150 + 100 * buffer[(trigger_index + i) % buffer_size];
-            DrawLineEx(v0, v1, 2, BLACK);
-            v0 = v1;
-        }
-
-        /* Drawing right channel samples */
-        trigger_index = ring_buffer_find(app->right_samples, 0.0);
-        buffer_size = app->right_samples->size;
-        width = window_width() - 20;
-        buffer = app->right_samples->buffer;
-
-        v0.y = buffer[trigger_index] * 100 + 350;
-        v0.x = 10;
-
-        for (int i = 0; i < width; ++i) {
-            v1.x = 10 + i;
-            v1.y = 350 + 100 * buffer[(trigger_index + i) % buffer_size];
-            DrawLineEx(v0, v1, 2, BLACK);
-            v0 = v1;
-        }
-
-        pthread_mutex_unlock(&app->samples_lock);
-
-        DrawText("Left", 10 + 10, 50 - 1 + 10, 20, WHITE);
-        DrawText("Right", 10 + 10, 250 - 1 + 10, 20, WHITE);
     EndDrawing();
 }

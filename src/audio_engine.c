@@ -44,6 +44,11 @@ void _audio_engine_callback(ma_device* device, void* output, const void* input, 
     AudioEngineState state = _audio_engine_get_state();
 
     switch (state) {
+        case STATE_PLAYING:
+            audio_engine->callback(buffer, frame_count);
+            break;
+        case STATE_PAUSED:
+            break;
         case STATE_PLAY:
             audio_engine->state = STATE_FADE_IN;
         case STATE_FADE_IN:
@@ -57,11 +62,6 @@ void _audio_engine_callback(ma_device* device, void* output, const void* input, 
             audio_engine->callback(buffer, frame_count);
             fade_out(buffer, frame_count);
             if (audio_engine->amplitude == 0.0f) { audio_engine->state = STATE_PAUSED; }
-            break;
-        case STATE_PLAYING:
-            audio_engine->callback(buffer, frame_count);
-            break;
-        case STATE_PAUSED:
             break;
     }
 
