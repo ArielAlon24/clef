@@ -23,6 +23,8 @@ void rack_unmount_vec(Rack *rack, Vector2 position);
 
 void rack_next(Rack *rack, MidiStream *midi_stream, float *buffer, unsigned int buffer_size);
 
+void rack_render(Rack *rack, Vector2 position, Vector2 size);
+
 /* `ComponentAudioCallback`, `ComponentMidiCallback` and `ComponentStateDestructor` implementations.
 Which means `Rack` is a `Component` as well. */
 void rack_audio_callback(void *state, float *buffer, unsigned int buffer_size);

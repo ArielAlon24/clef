@@ -16,7 +16,7 @@ Rack *rack_init(int size) {
 }
 
 Component *rack_component_init(Rack *rack) {
-    return component_init(rack_audio_callback, rack_midi_callback, rack_state_destructor, rack);
+    return component_init(rack_audio_callback, rack_midi_callback, rack_state_destructor, RED, rack);
 }
 
 void rack_mount(Rack *rack, Component *component, int x, int y) {
@@ -74,6 +74,26 @@ void rack_next(Rack *rack, MidiStream *midi_stream, float *buffer, unsigned int 
         }
     }
     pthread_mutex_unlock(&rack->lock);
+}
+
+void rack_render(Rack *rack, Vector2 position, Vector2 size) {
+    Vector2 component_size = { size.x / (rack->size + 1), size.y / (rack->size + 1)};
+    Vector2 padding = { component_size.x / (rack->size - 1), component_size.y / (rack->size - 1)};
+
+    DrawRectangleV(position, size, DARKGRAY);
+
+    Component *component;
+    Vector2 component_position;
+    for (int i = 0; i < rack->size * rack->size; ++i) {
+        component = rack->components[i];
+        component_position.x = ((int) i / rack->size) * (component_size.x + padding.x) + position.x;
+        component_position.y = ((int) i % rack->size) * (component_size.y + padding.y) + position.y;
+        if (component != NULL) {
+            component_render(component, component_position, component_size);
+        } else {
+            DrawRectangleV(component_position, component_size, BLACK);
+        }
+    }
 }
 
 void rack_audio_callback(void *state, float *buffer, unsigned int buffer_size) {

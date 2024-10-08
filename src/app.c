@@ -28,7 +28,7 @@ void app_init() {
     app->rack = rack_init(5);
 
     audio_engine_init(callback, analyzer);
-    window_init(500, 500);
+    window_init(500, 800);
 }
 
 void app_free() {
@@ -60,7 +60,7 @@ void app_update() {
     }
 
     if (IsKeyPressed(KEY_ENTER) && !IsKeyPressedRepeat(KEY_ENTER)) {
-        Component *oscillator = oscillator_init(OSCILLATOR_SINE, 440.0f, 0.5);
+        Component *oscillator = oscillator_init(OSCILLATOR_SINE, 440.0f, 0.2);
         rack_mount(app->rack, oscillator, 0, 0);
     }
 
@@ -71,7 +71,7 @@ void app_update() {
     if (IsKeyPressed(KEY_TAB) && !IsKeyPressedRepeat(KEY_TAB)) {
         Rack *new_rack = rack_init(5);
         Component *new_rack_comp = rack_component_init(new_rack);
-        Component *new_osc = oscillator_init(OSCILLATOR_SINE, 880.0f, 0.5);
+        Component *new_osc = oscillator_init(OSCILLATOR_SINE, 660.0f, 0.2);
         rack_mount(new_rack, new_osc, 0, 0);
         rack_mount(app->rack, new_rack_comp, 0, 1);
     }
@@ -140,9 +140,13 @@ void app_render() {
             DrawText("Paused", 10, 10, 20, BLACK);
         }
 
-        Vector2 position = {10, 50};
-        Vector2 size = {window_width() - 20, 200};
-        render_oscilloscope(app->sample_buffer, position, size);
 
+        Vector2 rack_position = {10, 40};
+        Vector2 rack_size ={ window_width() - 20, window_width() - 20 };
+        rack_render(app->rack, rack_position, rack_size);
+
+        Vector2 position = {10, rack_position.y + rack_size.y + 10};
+        Vector2 size = {200, 200};
+        render_oscilloscope(app->sample_buffer, position, size);
     EndDrawing();
 }

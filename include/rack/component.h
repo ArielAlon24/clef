@@ -2,6 +2,7 @@
 #define COMPONENT_H
 
 #include "midi/midi_stream.h"
+#include <raylib.h>
 
 typedef void (*ComponentAudioCallback)(void *state, float *buffer, unsigned int buffer_size);
 typedef void (*ComponentMidiCallback)(void *state, MidiStream *midi_stream);
@@ -16,16 +17,21 @@ typedef struct {
     ComponentMidiCallback midi_callback;
     ComponentStateDestructor state_destructor;
 
+    /* TODO: Currently using a single color to draw a component, this will later be a sprite. */
+    Color color;
+
     void *state;
 } Component;
 
 Component *component_init(ComponentAudioCallback audio_callback,
                           ComponentMidiCallback midi_callback,
-                          ComponentStateDestructor state_destructor, void *state);
+                          ComponentStateDestructor state_destructor, Color color, void *state);
 
 void component_next_audio(Component *component, float *buffer, unsigned int buffer_size);
 
 void component_next_midi(Component *component, MidiStream *midi_stream);
+
+void component_render(Component *component, Vector2 position, Vector2 size);
 
 void component_free(Component *component);
 

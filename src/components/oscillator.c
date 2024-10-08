@@ -13,7 +13,7 @@ Component *oscillator_init(OscillatorType type, float frequency, float amplitude
     oscillator->amplitude = amplitude;
     oscillator->phase = 0.0f;
 
-    Component *component = component_init(oscillator_next, NULL, oscillator_free, oscillator);
+    Component *component = component_init(oscillator_next, NULL, oscillator_free, BLUE, oscillator);
 
     return component;
 }
