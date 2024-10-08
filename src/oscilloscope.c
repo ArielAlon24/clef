@@ -2,12 +2,10 @@
 #include "oscilloscope.h"
 #include "sample_buffer.h"
 
-void render_oscilloscope(SampleBuffer *sample_buffer, Vector2 position, Vector2 size) {
-    DrawRectangleV(position, size, LIGHTGRAY);
+void oscilloscope_render(SampleBuffer *sample_buffer, Vector2 position, Vector2 size) {
+    DrawRectangleV(position, size, BLACK);
     sample_buffer_lock(sample_buffer);
     float quarter_height = size.y / 4;
-
-    DrawLine(position.x, position.y + quarter_height * 2, position.x + size.x, position.y + quarter_height * 2, RAYWHITE);
 
     size_t trigger_index = sample_buffer_find_left(sample_buffer, 0.0f);
 
@@ -18,7 +16,7 @@ void render_oscilloscope(SampleBuffer *sample_buffer, Vector2 position, Vector2 
     for (int i = 0; i < size.x; ++i) {
         v1.x = position.x + i;
         v1.y = position.y + quarter_height + quarter_height * buffer[(trigger_index + i) % buffer_size];
-        DrawLineEx(v0, v1, 3, BLACK);
+        DrawLineEx(v0, v1, 3, WHITE);
         v0 = v1;
     }
 
@@ -30,7 +28,7 @@ void render_oscilloscope(SampleBuffer *sample_buffer, Vector2 position, Vector2 
     for (int i = 0; i < size.x; ++i) {
         v1.x = position.x + i;
         v1.y = position.y + 3 * quarter_height + quarter_height * buffer[(trigger_index + i) % buffer_size];
-        DrawLineEx(v0, v1, 3, BLACK);
+        DrawLineEx(v0, v1, 3, WHITE);
         v0 = v1;
     }
 
