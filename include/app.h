@@ -10,8 +10,11 @@
 
 typedef struct {
     SampleBuffer *sample_buffer;
-    Rack *rack;
     MidiStream *midi_stream;
+    /* The root rack of all other racks. */
+    Rack *root_rack;
+    /* The current used rack */
+    Rack *current_rack;
 } App ;
 
 static App *app = NULL;
