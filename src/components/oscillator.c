@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 Component *oscillator_init(OscillatorType type, float frequency, float amplitude) {
     Oscillator *oscillator = malloc(sizeof(Oscillator));
@@ -14,7 +15,7 @@ Component *oscillator_init(OscillatorType type, float frequency, float amplitude
     oscillator->amplitude = amplitude;
     oscillator->phase = 0.0f;
 
-    Component *component = component_init(oscillator_audio_callback, oscillator_midi_callback, oscillator_free, BLUE, oscillator);
+    Component *component = component_init(oscillator_audio_callback, oscillator_midi_callback, oscillator_free, false, BLUE, oscillator);
 
     return component;
 }

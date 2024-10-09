@@ -25,7 +25,7 @@ void app_init() {
 
     app->sample_buffer = sample_buffer_init(SAMPLE_RATE / 10);
     app->midi_stream = midi_stream_init();
-    app->root_rack = rack_init(5);
+    app->root_rack = rack_init(5, NULL);
     app->current_rack = app->root_rack;
 
     audio_engine_init(callback, analyzer);
@@ -65,14 +65,27 @@ void app_update() {
         midi_stream_write(app->midi_stream, message);
     }
 
-    if (IsKeyPressed(KEY_RIGHT)) rack_cursor_right(app->current_rack);
-    if (IsKeyPressed(KEY_LEFT)) rack_cursor_left(app->current_rack);
-    if (IsKeyPressed(KEY_UP)) rack_cursor_up(app->current_rack);
-    if (IsKeyPressed(KEY_DOWN)) rack_cursor_down(app->current_rack);
+    if (IsKeyPressed(KEY_D)) rack_cursor_right(app->current_rack);
+    if (IsKeyPressed(KEY_A)) rack_cursor_left(app->current_rack);
+    if (IsKeyPressed(KEY_W)) rack_cursor_up(app->current_rack);
+    if (IsKeyPressed(KEY_S)) rack_cursor_down(app->current_rack);
 
-    if (IsKeyPressed(KEY_ENTER) && !IsKeyPressedRepeat(KEY_ENTER)) {
+    if (IsKeyPressed(KEY_ONE)) {
         Component *oscillator = oscillator_init(OSCILLATOR_SINE, 440.0f, 0.2);
         rack_mount(app->current_rack, oscillator);
+    }
+
+    if (IsKeyPressed(KEY_TWO)) {
+        Rack *new_rack = rack_init(5, app->current_rack);
+        Component *new_rack_comp = rack_component_init(new_rack);
+        rack_mount(app->current_rack, new_rack_comp);
+    }
+
+    if (IsKeyPressed(KEY_ESCAPE)) {
+        Rack *parent = rack_get_parent(app->current_rack);
+        if (parent) {
+            app->current_rack = parent;
+        }
     }
 
     if (IsKeyPressed(KEY_BACKSPACE) && !IsKeyPressedRepeat(KEY_BACKSPACE)) {
@@ -80,30 +93,31 @@ void app_update() {
     }
 
     if (IsKeyPressed(KEY_TAB) && !IsKeyPressedRepeat(KEY_TAB)) {
-        Rack *new_rack = rack_init(5);
-        Component *new_rack_comp = rack_component_init(new_rack);
-        Component *new_osc = oscillator_init(OSCILLATOR_SINE, 660.0f, 0.2);
-        Vector2 pos = {0, 0};
-        rack_mount_vec(new_rack, new_osc, pos);
-        rack_mount(app->current_rack, new_rack_comp);
+        Component *component = rack_get_component(app->current_rack);
+
+        if (component && component_is_enterable(component)) {
+            app->current_rack = component->state;
+        }
     }
 }
 
 void app_render() {
     BeginDrawing();
-        ClearBackground(BLACK);
-        if (audio_engine_is_playing()) {
-            DrawText("Playing", 10, 10, 20, WHITE);
-        } else {
-            DrawText("Paused", 10, 10, 20, WHITE);
-        }
-
         Vector2 rack_size ={ window_height() * 0.6 - 20, window_height() * 0.6 - 20 };
         Vector2 rack_position = {.x=(window_width() - rack_size.x) / 2, .y = 40};
 
         rack_render(app->current_rack, rack_position, rack_size);
 
-        Vector2 position = {10, rack_position.y + rack_size.y + 10};
+        ClearBackground(BLACK);
+        if (audio_engine_is_playing()) {
+            DrawText("Playing", rack_position.x, 10, 20, WHITE);
+        } else {
+            DrawText("Paused", rack_position.x, 10, 20, WHITE);
+        }
+
+
+
+        Vector2 position = {rack_position.x, rack_position.y + rack_size.y + 10};
         Vector2 size = {200, 200};
         oscilloscope_render(app->sample_buffer, position, size);
     EndDrawing();

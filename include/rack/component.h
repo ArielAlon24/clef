@@ -3,6 +3,7 @@
 
 #include "midi/midi_stream.h"
 #include <raylib.h>
+#include <stdbool.h>
 
 typedef void (*ComponentAudioCallback)(void *state, float *buffer, unsigned int buffer_size);
 typedef void (*ComponentMidiCallback)(void *state, const MidiMessage *messages, unsigned int count);
@@ -17,6 +18,9 @@ typedef struct {
     ComponentMidiCallback midi_callback;
     ComponentStateDestructor state_destructor;
 
+    /* TODO: Specify `is_enterable` using a ComponentType enum or something (is_enterable sounds weird) */
+    bool is_enterable;
+
     /* TODO: Currently using a single color to draw a component, this will later be a sprite. */
     Color color;
 
@@ -25,7 +29,7 @@ typedef struct {
 
 Component *component_init(ComponentAudioCallback audio_callback,
                           ComponentMidiCallback midi_callback,
-                          ComponentStateDestructor state_destructor, Color color, void *state);
+                          ComponentStateDestructor state_destructor, bool is_enterable, Color color, void *state);
 
 void component_next_audio(Component *component, float *buffer, unsigned int buffer_size);
 
@@ -34,5 +38,7 @@ void component_next_midi(Component *component, const MidiMessage *message, unsig
 void component_render(Component *component, Vector2 position, Vector2 size);
 
 void component_free(Component *component);
+
+bool component_is_enterable(Component *component);
 
 #endif

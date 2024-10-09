@@ -3,19 +3,20 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <raylib.h>
+#include <stdbool.h>
 
 Component *component_init(ComponentAudioCallback audio_callback,
                           ComponentMidiCallback midi_callback,
-                          ComponentStateDestructor state_destructor, Color color, void *state) {
+                          ComponentStateDestructor state_destructor,  bool is_enterable, Color color, void *state) {
     Component *component = malloc(sizeof(Component));
     assert(component != NULL);
 
     component->audio_callback = audio_callback;
     component->midi_callback = midi_callback;
     component->state_destructor = state_destructor;
+    component->is_enterable = is_enterable;
     component->color = color;
     component->state = state;
-
 
     return component;
 }
@@ -40,3 +41,5 @@ void component_free(Component *component) {
     component->state_destructor(component->state);
     free(component);
 }
+
+bool component_is_enterable(Component *component) { return component->is_enterable; }

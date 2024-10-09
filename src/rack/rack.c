@@ -3,7 +3,7 @@
 #include "rack/rack.h"
 #include "macros.h"
 
-Rack *rack_init(int size) {
+Rack *rack_init(int size, Rack *parent) {
     Rack *rack = malloc(sizeof(Rack));
     assert(rack != NULL);
 
@@ -14,13 +14,15 @@ Rack *rack_init(int size) {
     rack->cursor.x = 0;
     rack->cursor.y = 0;
 
+    rack->parent = parent;
+
     pthread_mutex_init(&rack->lock, NULL);
 
     return rack;
 }
 
 Component *rack_component_init(Rack *rack) {
-    return component_init(rack_audio_callback, rack_midi_callback, rack_state_destructor, RED, rack);
+    return component_init(rack_audio_callback, rack_midi_callback, rack_state_destructor, true, RED, rack);
 }
 
 void rack_mount(Rack *rack, Component *component) {
@@ -52,6 +54,20 @@ void rack_unmount_vec(Rack *rack, Vector2 position) {
     rack->components[index] = NULL;
     pthread_mutex_unlock(&rack->lock);
 }
+
+Component *rack_get_component(Rack *rack) {
+    return rack_get_component_vec(rack, rack->cursor);
+}
+
+Component *rack_get_component_vec(Rack *rack, Vector2 position) {
+    pthread_mutex_lock(&rack->lock);
+    int index = rack->size * (int) position.x + (int) position.y;
+    Component *component = rack->components[index];
+    pthread_mutex_unlock(&rack->lock);
+    return component;
+}
+
+Rack *rack_get_parent(Rack *rack) { return rack->parent; }
 
 void rack_next(Rack *rack, MidiStream *midi_stream, float *buffer, unsigned int buffer_size) {
     pthread_mutex_lock(&rack->lock);
