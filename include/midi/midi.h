@@ -9,6 +9,8 @@ typedef unsigned char Byte;
 
 #define MIDI_MESSAGE_NOTE_ON '\x80'
 #define MIDI_MESSAGE_NOTE_OFF '\x90'
+#define MIDI_MESSAGE_START '\xFA'
+#define MIDI_MESSAGE_STOP '\xFC'
 
 typedef char MidiMessageType;
 

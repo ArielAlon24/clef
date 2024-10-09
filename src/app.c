@@ -52,12 +52,17 @@ void app_run() {
 
 void app_update() {
     window_update();
+    MidiMessage message;
+
     if (IsKeyPressed(KEY_SPACE) && !IsKeyPressedRepeat(KEY_SPACE)) {
         if (audio_engine_is_playing()) {
+            MIDI_MESSAGE(message, MIDI_MESSAGE_STOP);
             audio_engine_pause();
         } else {
+            MIDI_MESSAGE(message, MIDI_MESSAGE_START);
             audio_engine_play();
         }
+        midi_stream_write(app->midi_stream, message);
     }
 
     if (IsKeyPressed(KEY_RIGHT)) rack_cursor_right(app->current_rack);
@@ -82,60 +87,6 @@ void app_update() {
         rack_mount_vec(new_rack, new_osc, pos);
         rack_mount(app->current_rack, new_rack_comp);
     }
-
-    MidiMessage message;
-    if (IsKeyPressed(KEY_A)) {
-        MIDI_MESSAGE2(message, MIDI_MESSAGE_NOTE_ON, 60, 80); /* C4 */
-        midi_stream_write(app->midi_stream, &message);
-    }
-    if (IsKeyPressed(KEY_W)) {
-        MIDI_MESSAGE2(message, MIDI_MESSAGE_NOTE_ON, 61, 80);  /* C#4 */
-        midi_stream_write(app->midi_stream, &message);
-    }
-    if (IsKeyPressed(KEY_S)) {
-        MIDI_MESSAGE2(message, MIDI_MESSAGE_NOTE_ON, 62, 80);  /* D4 */
-        midi_stream_write(app->midi_stream, &message);
-    }
-    if (IsKeyPressed(KEY_E)) {
-        MIDI_MESSAGE2(message, MIDI_MESSAGE_NOTE_ON, 63, 80);  /* D#4 */
-        midi_stream_write(app->midi_stream, &message);
-    }
-    if (IsKeyPressed(KEY_D)) {
-        MIDI_MESSAGE2(message, MIDI_MESSAGE_NOTE_ON, 64, 80);  /* E4 */
-        midi_stream_write(app->midi_stream, &message);
-    }
-    if (IsKeyPressed(KEY_F)) {
-        MIDI_MESSAGE2(message, MIDI_MESSAGE_NOTE_ON, 65, 80);  /* F4 */
-        midi_stream_write(app->midi_stream, &message);
-    }
-    if (IsKeyPressed(KEY_T)) {
-        MIDI_MESSAGE2(message, MIDI_MESSAGE_NOTE_ON, 66, 80);  /* F#4 */
-        midi_stream_write(app->midi_stream, &message);
-    }
-    if (IsKeyPressed(KEY_G)) {
-        MIDI_MESSAGE2(message, MIDI_MESSAGE_NOTE_ON, 67, 80);  /* G4 */
-        midi_stream_write(app->midi_stream, &message);
-    }
-    if (IsKeyPressed(KEY_Y)) {
-        MIDI_MESSAGE2(message, MIDI_MESSAGE_NOTE_ON, 68, 80);  /* G#4 */
-        midi_stream_write(app->midi_stream, &message);
-    }
-    if (IsKeyPressed(KEY_H)) {
-        MIDI_MESSAGE2(message, MIDI_MESSAGE_NOTE_ON, 69, 80);  /* A4 */
-        midi_stream_write(app->midi_stream, &message);
-    }
-    if (IsKeyPressed(KEY_U)) {
-        MIDI_MESSAGE2(message, MIDI_MESSAGE_NOTE_ON, 70, 80);  /* A#4 */
-        midi_stream_write(app->midi_stream, &message);
-    }
-    if (IsKeyPressed(KEY_J)) {
-        MIDI_MESSAGE2(message, MIDI_MESSAGE_NOTE_ON, 71, 80);  /* B4 */
-        midi_stream_write(app->midi_stream, &message);
-    }
-    if (IsKeyPressed(KEY_K)) {
-        MIDI_MESSAGE2(message, MIDI_MESSAGE_NOTE_ON, 72, 80);  /* C5 */
-        midi_stream_write(app->midi_stream, &message);
-    }
 }
 
 void app_render() {
@@ -147,8 +98,9 @@ void app_render() {
             DrawText("Paused", 10, 10, 20, WHITE);
         }
 
-        Vector2 rack_position = {10, 40};
         Vector2 rack_size ={ window_height() * 0.6 - 20, window_height() * 0.6 - 20 };
+        Vector2 rack_position = {.x=(window_width() - rack_size.x) / 2, .y = 40};
+
         rack_render(app->current_rack, rack_position, rack_size);
 
         Vector2 position = {10, rack_position.y + rack_size.y + 10};

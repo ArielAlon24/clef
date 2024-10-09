@@ -9,9 +9,7 @@ MidiStream *midi_stream_init() {
     MidiStream *stream = (MidiStream *)malloc(sizeof(MidiStream));
     assert(stream != NULL);
 
-    stream->back = -1;
-    stream->front = 0;
-
+    stream->size = 0;
     pthread_mutex_init(&stream->lock, NULL);
 
     return stream;
@@ -23,46 +21,39 @@ void midi_stream_free(MidiStream *stream) {
 }
 
 bool midi_stream_is_empty(MidiStream *stream) {
-    return stream->back == -1;
+    return stream->size == 0;
 }
 
 bool midi_stream_is_full(MidiStream *stream) {
-    /* stream is initialized and back + 1 == front */
-    return (stream->back != -1) && (stream->back + 1) % MIDI_STREAM_MAX_SIZE == stream->front;
+    return stream->size == MIDI_STREAM_MAX_SIZE;
 }
 
-void midi_stream_write(MidiStream *stream, const MidiMessage *message) {
+void midi_stream_write(MidiStream *stream, MidiMessage message) {
     pthread_mutex_lock(&stream->lock);
     assert(!midi_stream_is_full(stream));
 
-    if (midi_stream_is_empty(stream)) {
-        stream->back = 0;
-        stream->front = 0;
-    } else {
-        stream->back = (stream->back + 1) % MIDI_STREAM_MAX_SIZE;
-    }
+    stream->buffer[stream->size] = message;
+    stream->size++;
 
-    stream->buffer[stream->back] = *message;
     pthread_mutex_unlock(&stream->lock);
 }
 
-bool midi_stream_read(MidiStream *stream, MidiMessage *message) {
+size_t midi_stream_size(MidiStream *stream) {
     pthread_mutex_lock(&stream->lock);
-    if (midi_stream_is_empty(stream)) {
-        pthread_mutex_unlock(&stream->lock);
-        return false;
-    }
-
-    *message = stream->buffer[stream->front];
-
-    /* If this was the last message */
-    if (stream->front == stream-> back) {
-        stream->back = -1;
-        stream->front = 0;
-    } else {
-        stream->front = (stream->front + 1) % MIDI_STREAM_MAX_SIZE;
-    }
-
+    size_t size = stream->size;
     pthread_mutex_unlock(&stream->lock);
-    return true;
+    return size;
+}
+
+const MidiMessage *midi_stream_messages(MidiStream *stream) {
+    pthread_mutex_lock(&stream->lock);
+    const MidiMessage *messages = stream->buffer;
+    pthread_mutex_unlock(&stream->lock);
+    return messages;
+}
+
+void midi_stream_flush(MidiStream *stream) {
+    pthread_mutex_lock(&stream->lock);
+    stream->size = 0;
+    pthread_mutex_unlock(&stream->lock);
 }

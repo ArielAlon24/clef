@@ -1,5 +1,6 @@
 #include "components/oscillator.h"
 #include "macros.h"
+#include "midi/midi_stream.h"
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
@@ -13,12 +14,12 @@ Component *oscillator_init(OscillatorType type, float frequency, float amplitude
     oscillator->amplitude = amplitude;
     oscillator->phase = 0.0f;
 
-    Component *component = component_init(oscillator_next, NULL, oscillator_free, BLUE, oscillator);
+    Component *component = component_init(oscillator_audio_callback, oscillator_midi_callback, oscillator_free, BLUE, oscillator);
 
     return component;
 }
 
-void oscillator_next(void *state, float *buffer, unsigned int frame_count) {
+void oscillator_audio_callback(void *state, float *buffer, unsigned int frame_count) {
     Oscillator *oscillator = (Oscillator *)state;
     /* If frequency is 0Hz, mute the oscillator */
     if (oscillator->frequency == 0.0f) return;
@@ -32,6 +33,18 @@ void oscillator_next(void *state, float *buffer, unsigned int frame_count) {
             return _oscillator_triangle_next(oscillator, buffer, frame_count);
         case OSCILLATOR_SAWTOOTH:
             return _oscillator_sawtooth_next(oscillator, buffer, frame_count);
+    }
+}
+
+void oscillator_midi_callback(void *state, const MidiMessage *messages, unsigned int count) {
+    Oscillator *oscillator = (Oscillator *)state;
+    MidiMessage message;
+    for (int i = 0; i < count; ++i) {
+        switch (messages[i].type) {
+            case MIDI_MESSAGE_START:
+                oscillator->phase = 0.0f;
+                break;
+        }
     }
 }
 

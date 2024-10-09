@@ -35,7 +35,7 @@ void rack_cursor_down(Rack *rack);
 /* `ComponentAudioCallback`, `ComponentMidiCallback` and `ComponentStateDestructor` implementations.
 Which means `Rack` is a `Component` as well. */
 void rack_audio_callback(void *state, float *buffer, unsigned int buffer_size);
-void rack_midi_callback(void *state, MidiStream *midi_stream);
+void rack_midi_callback(void *state, const MidiMessage *message, unsigned int count);
 void rack_state_destructor(void *state);
 
 void rack_free(Rack *rack);

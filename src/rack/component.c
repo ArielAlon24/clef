@@ -26,9 +26,9 @@ void component_next_audio(Component *component, float *buffer, unsigned int buff
     }
 }
 
-void component_next_midi(Component *component, MidiStream *midi_stream) {
+void component_next_midi(Component *component, const MidiMessage *messages, unsigned int count) {
     if (component->midi_callback != NULL) {
-        component->midi_callback(component->state, midi_stream);
+        component->midi_callback(component->state, messages, count);
     }
 }
 
