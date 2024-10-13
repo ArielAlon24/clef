@@ -2,6 +2,7 @@
 #include <assert.h>
 #include "rack/rack.h"
 #include "macros.h"
+#include "color.h"
 
 Rack *rack_init(int size, Rack *parent) {
     Rack *rack = malloc(sizeof(Rack));
@@ -93,7 +94,7 @@ void rack_render(Rack *rack, Vector2 position, Vector2 size) {
     Vector2 component_size = { size.x / (rack->size + 1), size.y / (rack->size + 1)};
     Vector2 padding = { component_size.x / (rack->size - 1), component_size.y / (rack->size - 1)};
 
-    DrawRectangleV(position, size, BLACK);
+    DrawRectangleV(position, size, COLOR_BLACK);
 
     Component *component;
     Vector2 component_position;
@@ -104,7 +105,7 @@ void rack_render(Rack *rack, Vector2 position, Vector2 size) {
         if (component != NULL) {
             component_render(component, component_position, component_size);
         } else {
-            DrawRectangleV(component_position, component_size, DARKGRAY);
+            DrawRectangleV(component_position, component_size, COLOR_DARK_GRAY);
         }
     }
 
@@ -113,7 +114,8 @@ void rack_render(Rack *rack, Vector2 position, Vector2 size) {
     cursor_rectangle.y = rack->cursor.y * (component_size.y + padding.y) + position.y;
     cursor_rectangle.height = component_size.x;
     cursor_rectangle.width = component_size.y;
-    DrawRectangleLinesEx(cursor_rectangle, 3, YELLOW);
+    Color cursor_color = {84, 60, 104, 255};
+    DrawRectangleLinesEx(cursor_rectangle, 1, cursor_color);
 }
 
 void rack_cursor_right(Rack *rack) { rack->cursor.x = MIN(rack->size - 1, rack->cursor.x + 1); }

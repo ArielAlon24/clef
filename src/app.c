@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include "color.h"
 #include "app.h"
 #include "window.h"
 #include "macros.h"
@@ -12,7 +13,7 @@
 #include "rack/rack.h"
 
 void callback(float *buffer, unsigned int frame_count) {
-    rack_next(app->current_rack, app->midi_stream, buffer, frame_count);
+    rack_next(app->root_rack, app->midi_stream, buffer, frame_count);
 }
 
 void analyzer(const float *buffer, unsigned int frame_count) {
@@ -103,22 +104,22 @@ void app_update() {
 
 void app_render() {
     BeginDrawing();
+        ClearBackground(COLOR_BLACK);
+
         Vector2 rack_size ={ window_height() * 0.6 - 20, window_height() * 0.6 - 20 };
         Vector2 rack_position = {.x=(window_width() - rack_size.x) / 2, .y = 40};
 
         rack_render(app->current_rack, rack_position, rack_size);
 
-        ClearBackground(BLACK);
+
         if (audio_engine_is_playing()) {
-            DrawText("Playing", rack_position.x, 10, 20, WHITE);
+            DrawText("Playing", rack_position.x, 10, 20, COLOR_WHITE);
         } else {
-            DrawText("Paused", rack_position.x, 10, 20, WHITE);
+            DrawText("Paused", rack_position.x, 10, 20, COLOR_WHITE);
         }
 
-
-
         Vector2 position = {rack_position.x, rack_position.y + rack_size.y + 10};
-        Vector2 size = {200, 200};
+        Vector2 size = {rack_size.x, 200};
         oscilloscope_render(app->sample_buffer, position, size);
     EndDrawing();
 }
