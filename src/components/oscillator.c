@@ -1,10 +1,11 @@
-#include "components/oscillator.h"
-#include "macros.h"
-#include "midi/midi_stream.h"
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include "components/oscillator.h"
+#include "macros.h"
+#include "midi/midi_stream.h"
+#include "audio_engine.h"
 
 Component *oscillator_init(OscillatorType type, float frequency, float amplitude) {
     Oscillator *oscillator = malloc(sizeof(Oscillator));

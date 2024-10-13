@@ -4,6 +4,8 @@
 #include <stddef.h>
 #include "rack/component.h"
 
+#define TWO_PI 6.283185307179586
+
 typedef enum {
     OSCILLATOR_SINE,
     OSCILLATOR_SQUARE,
