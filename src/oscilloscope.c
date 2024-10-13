@@ -2,6 +2,7 @@
 #include "oscilloscope.h"
 #include "sample_buffer.h"
 #include "color.h"
+#include "texture_handler.h"
 
 void oscilloscope_render(SampleBuffer *sample_buffer, Vector2 position, Vector2 size) {
     DrawRectangleV(position, size, COLOR_BLACK);

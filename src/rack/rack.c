@@ -3,6 +3,7 @@
 #include "rack/rack.h"
 #include "macros.h"
 #include "color.h"
+#include "texture_handler.h"
 
 Rack *rack_init(int size, Rack *parent) {
     Rack *rack = malloc(sizeof(Rack));
@@ -91,6 +92,7 @@ void rack_next(Rack *rack, MidiStream *midi_stream, float *buffer, unsigned int 
 }
 
 void rack_render(Rack *rack, Vector2 position, Vector2 size) {
+    Texture2D empty_cell_texture = texture_load(TEXTURE_EMPTY_CELL);
     Vector2 component_size = { size.x / (rack->size + 1), size.y / (rack->size + 1)};
     Vector2 padding = { component_size.x / (rack->size - 1), component_size.y / (rack->size - 1)};
 
@@ -105,17 +107,16 @@ void rack_render(Rack *rack, Vector2 position, Vector2 size) {
         if (component != NULL) {
             component_render(component, component_position, component_size);
         } else {
-            DrawRectangleV(component_position, component_size, COLOR_DARK_GRAY);
+            DrawTextureEx(empty_cell_texture, component_position, 0, component_size.x / (float)empty_cell_texture.height, WHITE);
         }
     }
 
-    Rectangle cursor_rectangle;
-    cursor_rectangle.x = rack->cursor.x * (component_size.x + padding.x) + position.x;
-    cursor_rectangle.y = rack->cursor.y * (component_size.y + padding.y) + position.y;
-    cursor_rectangle.height = component_size.x;
-    cursor_rectangle.width = component_size.y;
-    Color cursor_color = {84, 60, 104, 255};
-    DrawRectangleLinesEx(cursor_rectangle, 1, cursor_color);
+    Texture2D cursor_texture = texture_load(TEXTURE_CURSOR);
+    Vector2 cursor_position;
+    cursor_position.x = rack->cursor.x * (component_size.x + padding.x) + position.x;
+    cursor_position.y = rack->cursor.y * (component_size.y + padding.y) + position.y;
+
+    DrawTextureEx(cursor_texture, cursor_position, 0, component_size.x / (float)cursor_texture.height, WHITE);
 }
 
 void rack_cursor_right(Rack *rack) { rack->cursor.x = MIN(rack->size - 1, rack->cursor.x + 1); }

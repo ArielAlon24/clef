@@ -11,6 +11,7 @@
 #include "midi/midi.h"
 #include "components/oscillator.h"
 #include "rack/rack.h"
+#include "texture_handler.h"
 
 void callback(float *buffer, unsigned int frame_count) {
     rack_next(app->root_rack, app->midi_stream, buffer, frame_count);
@@ -37,6 +38,7 @@ void app_free() {
     window_free();
     audio_engine_free();
 
+    texture_unload_all();
     sample_buffer_free(app->sample_buffer);
     rack_free(app->root_rack);
     midi_stream_free(app->midi_stream);
