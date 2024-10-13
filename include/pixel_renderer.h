@@ -5,8 +5,10 @@
 
 typedef struct {
     RenderTexture2D render_texture;
-    int width;
-    int height;
+    /* The width and height are saved as floats to avoid multiple conversions
+    in the `pixel_renderer_end` function. */
+    float width;
+    float height;
 } PixelRenderer;
 
 PixelRenderer *pixel_renderer_init(int width, int height);
