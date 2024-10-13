@@ -3,9 +3,10 @@
 #include "sample_buffer.h"
 #include "color.h"
 #include "texture_handler.h"
+#include <stdio.h>
 
 void oscilloscope_render(SampleBuffer *sample_buffer, Vector2 position, Vector2 size) {
-    DrawRectangleV(position, size, COLOR_BLACK);
+    DrawRectangleV(position, size, COLOR_DARK_GRAY);
     sample_buffer_lock(sample_buffer);
     float half_height = size.y / 2;
 
@@ -18,7 +19,7 @@ void oscilloscope_render(SampleBuffer *sample_buffer, Vector2 position, Vector2 
     for (int i = 0; i < size.x; ++i) {
         v1.x = position.x + i;
         v1.y = position.y + half_height + half_height * buffer[(trigger_index + i) % buffer_size];
-        DrawLineEx(v0, v1, 3, COLOR_WHITE);
+        DrawLineEx(v0, v1, 1, COLOR_GRAY);
         v0 = v1;
     }
 
@@ -30,11 +31,9 @@ void oscilloscope_render(SampleBuffer *sample_buffer, Vector2 position, Vector2 
     for (int i = 0; i < size.x; ++i) {
         v1.x = position.x + i;
         v1.y = position.y + half_height + half_height * buffer[(trigger_index + i) % buffer_size];
-        DrawLineEx(v0, v1, 3, COLOR_GRAY);
+        DrawLineEx(v0, v1, 1, COLOR_WHITE);
         v0 = v1;
     }
-
-    DrawText("Oscilloscope", position.x + 10, position.y + 10, 20, COLOR_WHITE);
 
     sample_buffer_unlock(sample_buffer);
 }

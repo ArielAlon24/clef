@@ -4,6 +4,8 @@
 #include "macros.h"
 #include "color.h"
 #include "texture_handler.h"
+#include "stdio.h"
+#include "size.h"
 
 Rack *rack_init(int size, Rack *parent) {
     Rack *rack = malloc(sizeof(Rack));
@@ -95,28 +97,27 @@ void rack_render(Rack *rack, Vector2 position, Vector2 size) {
     Texture2D empty_cell_texture = texture_load(TEXTURE_EMPTY_CELL);
     Vector2 component_size = { size.x / (rack->size + 1), size.y / (rack->size + 1)};
     Vector2 padding = { component_size.x / (rack->size - 1), component_size.y / (rack->size - 1)};
-
     DrawRectangleV(position, size, COLOR_BLACK);
 
     Component *component;
     Vector2 component_position;
     for (int i = 0; i < rack->size * rack->size; ++i) {
         component = rack->components[i];
-        component_position.x = ((int) i / rack->size) * (component_size.x + padding.x) + position.x;
-        component_position.y = ((int) i % rack->size) * (component_size.y + padding.y) + position.y;
+        component_position.x = ((int) i / rack->size) * (COMPONENT_DIMENSIONS.x + padding.x) + position.x;
+        component_position.y = ((int) i % rack->size) * (COMPONENT_DIMENSIONS.y + padding.y) + position.y;
         if (component != NULL) {
-            component_render(component, component_position, component_size);
+            component_render(component, component_position, COMPONENT_DIMENSIONS);
         } else {
-            DrawTextureEx(empty_cell_texture, component_position, 0, component_size.x / (float)empty_cell_texture.height, WHITE);
+            DrawTextureV(empty_cell_texture, component_position, WHITE);
         }
     }
 
     Texture2D cursor_texture = texture_load(TEXTURE_CURSOR);
     Vector2 cursor_position;
-    cursor_position.x = rack->cursor.x * (component_size.x + padding.x) + position.x;
-    cursor_position.y = rack->cursor.y * (component_size.y + padding.y) + position.y;
+    cursor_position.x = rack->cursor.x * (COMPONENT_DIMENSIONS.x + padding.x) + position.x;
+    cursor_position.y = rack->cursor.y * (COMPONENT_DIMENSIONS.y + padding.y) + position.y;
 
-    DrawTextureEx(cursor_texture, cursor_position, 0, component_size.x / (float)cursor_texture.height, WHITE);
+    DrawTextureV(cursor_texture, cursor_position, WHITE);
 }
 
 void rack_cursor_right(Rack *rack) { rack->cursor.x = MIN(rack->size - 1, rack->cursor.x + 1); }

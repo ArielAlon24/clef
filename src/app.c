@@ -12,6 +12,7 @@
 #include "components/oscillator.h"
 #include "rack/rack.h"
 #include "texture_handler.h"
+#include "size.h"
 
 void callback(float *buffer, unsigned int frame_count) {
     rack_next(app->root_rack, app->midi_stream, buffer, frame_count);
@@ -31,17 +32,21 @@ void app_init() {
     app->current_rack = app->root_rack;
 
     audio_engine_init(callback, analyzer);
-    window_init(500, 800);
+    window_init(WINDOW_WIDTH, WINDOW_HEIGHT);
+
+    app->pixel_renderer = pixel_renderer_init(WIDTH, HEIGHT);
 }
 
 void app_free() {
-    window_free();
     audio_engine_free();
 
-    texture_unload_all();
+    pixel_renderer_free(app->pixel_renderer);
     sample_buffer_free(app->sample_buffer);
     rack_free(app->root_rack);
     midi_stream_free(app->midi_stream);
+
+    texture_unload_all();
+    window_free();
 
     free(app);
 }
@@ -105,23 +110,21 @@ void app_update() {
 }
 
 void app_render() {
-    BeginDrawing();
+    pixel_renderer_begin(app->pixel_renderer);
         ClearBackground(COLOR_BLACK);
 
-        Vector2 rack_size ={ window_height() * 0.6 - 20, window_height() * 0.6 - 20 };
-        Vector2 rack_position = {.x=(window_width() - rack_size.x) / 2, .y = 40};
-
-        rack_render(app->current_rack, rack_position, rack_size);
-
+        Vector2 rack_size ={COMPONENT_WIDTH * (app->current_rack->size + 1),COMPONENT_WIDTH * (app->current_rack->size + 1)};
+        rack_render(app->current_rack, RACK_POSITION, rack_size);
 
         if (audio_engine_is_playing()) {
-            DrawText("Playing", rack_position.x, 10, 20, COLOR_WHITE);
+            DrawText("Playing", WINDOW_PADDING, WINDOW_PADDING, 10, COLOR_WHITE);
         } else {
-            DrawText("Paused", rack_position.x, 10, 20, COLOR_WHITE);
+            DrawText("Paused", WINDOW_PADDING, WINDOW_PADDING, 10, COLOR_WHITE);
         }
 
-        Vector2 position = {rack_position.x, rack_position.y + rack_size.y + 10};
-        Vector2 size = {rack_size.x, 200};
-        oscilloscope_render(app->sample_buffer, position, size);
-    EndDrawing();
+        DrawRectangleV((Vector2){WINDOW_PADDING, WINDOW_PADDING}, (Vector2){WINDOW_PADDING * 6, WINDOW_PADDING * 3.5}, COLOR_DARK_GRAY);
+        DrawRectangleV((Vector2){7.5 * WINDOW_PADDING, 2.5 * WINDOW_PADDING}, (Vector2){WINDOW_PADDING * 3.5, WINDOW_PADDING * 8.5}, COLOR_DARK_GRAY);
+        Vector2 size = {WINDOW_PADDING * 3.5, WINDOW_PADDING };
+        oscilloscope_render(app->sample_buffer, OSCILLOSCOPE_POSITION, size);
+    pixel_renderer_end(app->pixel_renderer);
 }

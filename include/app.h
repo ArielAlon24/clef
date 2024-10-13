@@ -7,10 +7,14 @@
 #include "sample_buffer.h"
 #include "midi/midi_stream.h"
 #include "rack/rack.h"
+#include "pixel_renderer.h"
 
 typedef struct {
+    PixelRenderer *pixel_renderer;
+
     SampleBuffer *sample_buffer;
     MidiStream *midi_stream;
+
     /* The root rack of all other racks. */
     Rack *root_rack;
     /* The current used rack */
