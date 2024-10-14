@@ -14,7 +14,7 @@ void window_init(int width, int height) {
 
     SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT);
     SetTargetFPS(FPS);
-    InitWindow(width, height, "clef");
+    InitWindow(width, height, "Clef");
     SetExitKey(0);
 }
 

@@ -10,8 +10,7 @@
 /* WINDOW_[WIDTH | HEIGHT] are the dimensions of the GUI window */
 #define WINDOW_WIDTH (1.5 * WIDTH)
 #define WINDOW_HEIGHT (1.5 * HEIGHT)
-#define WINDOW_DIMENSIONS                                                                          \
-    (Vector2) { WINDOW_WIDTH, WINDOW_HEIGHT }
+#define WINDOW_DIMENSIONS (Vector2) { WINDOW_WIDTH, WINDOW_HEIGHT }
 
 /* The (minimum) distance between the window borders and actual GUI */
 #define WINDOW_PADDING (WIDTH / 12)
@@ -20,16 +19,15 @@
 represent the size of a single component */
 #define COMPONENT_WIDTH (WIDTH / 12)
 #define COMPONENT_HEIGHT (HEIGHT / 12)
-#define COMPONENT_DIMENSIONS                                                                       \
-    (Vector2) { COMPONENT_WIDTH, COMPONENT_HEIGHT }
+#define COMPONENT_DIMENSIONS (Vector2) { COMPONENT_WIDTH, COMPONENT_HEIGHT }
 
 /* The distance between components (same for horizontal and vertical axis)*/
 #define COMPONENT_PADDING (COMPONENT_WIDTH / 2)
 
-#define RACK_POSITION                                                                              \
-    (Vector2) { WINDOW_PADDING, WINDOW_PADDING * 5 }
+#define OSCILLOSCOPE_POSITION (Vector2) { WINDOW_PADDING * 7.5, WINDOW_PADDING * 1 }
+#define OSCILLOSCOPE_DIMENSIONS (Vector2) {WINDOW_PADDING * 3.5, WINDOW_PADDING }
 
-#define OSCILLOSCOPE_POSITION                                                                      \
-    (Vector2) { WINDOW_PADDING * 7.5, WINDOW_PADDING * 1 }
-
+#define RACK_SIZE 5
+#define RACK_POSITION (Vector2) { WINDOW_PADDING, WINDOW_PADDING * 5 }
+#define RACK_DIMENSIONS (Vector2) {COMPONENT_WIDTH * (RACK_SIZE + 1),COMPONENT_WIDTH * (RACK_SIZE + 1)}
 #endif

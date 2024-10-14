@@ -8,10 +8,12 @@
 typedef enum {
     TEXTURE_EMPTY_CELL,
     TEXTURE_CURSOR,
-    TEXTURES_AMOUNT,
+    TEXTURE_OSCILLOSCOPE,
+    TEXTURE_OSCILLATOR,
+    _TEXTURES_AMOUNT,
 } TextureKind;
 
-static Texture2D textures[TEXTURES_AMOUNT];
+static Texture2D textures[_TEXTURES_AMOUNT];
 
 const char *texture_kind_path(TextureKind kind);
 

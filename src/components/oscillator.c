@@ -3,20 +3,23 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "components/oscillator.h"
+#include "rack/component.h"
 #include "macros.h"
 #include "midi/midi_stream.h"
 #include "audio_engine.h"
+#include "texture_handler.h"
+#include "rack/component_handler.h"
 
-Component *oscillator_init(OscillatorType type, float frequency, float amplitude) {
+Component *oscillator_init() {
     Oscillator *oscillator = malloc(sizeof(Oscillator));
     assert(oscillator != NULL);
 
-    oscillator->type = type;
-    oscillator->frequency = frequency;
-    oscillator->amplitude = amplitude;
+    oscillator->type = OSCILLATOR_SINE;
+    oscillator->frequency = 440.0;
+    oscillator->amplitude = 0.5;
     oscillator->phase = 0.0f;
 
-    Component *component = component_init(oscillator_audio_callback, oscillator_midi_callback, oscillator_free, false, BLUE, oscillator);
+    Component *component = component_init(oscillator_audio_callback, oscillator_midi_callback, oscillator_free, false, TEXTURE_OSCILLATOR, oscillator);
 
     return component;
 }
@@ -77,4 +80,9 @@ void _oscillator_sawtooth_next(Oscillator *oscillator, float *buffer, unsigned i
 
 void oscillator_free(void *state) {
     free((Oscillator *)state);
+}
+
+void oscillator_preview(Vector2 position) {
+    Texture2D texture = texture_load(TEXTURE_OSCILLATOR);
+    DrawTextureV(texture, position, WHITE);
 }

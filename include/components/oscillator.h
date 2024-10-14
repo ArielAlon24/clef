@@ -20,7 +20,7 @@ typedef struct {
     float phase;
 } Oscillator;
 
-Component *oscillator_init(OscillatorType type, float frequency, float amplitude);
+Component *oscillator_init();
 
 /* ComponentAudioCallback implementation */
 void oscillator_audio_callback(void *state, float *buffer, unsigned int frame_count);
@@ -36,5 +36,8 @@ void _oscillator_sawtooth_next(Oscillator *oscillator, float *buffer, unsigned i
 
 /* ComponentStateDestructor implementation */
 void oscillator_free(void *state);
+
+/* ComponentPreviewCallback implementation */
+void oscillator_preview(Vector2 position);
 
 #endif

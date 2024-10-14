@@ -47,4 +47,6 @@ void rack_state_destructor(void *state);
 
 void rack_free(Rack *rack);
 
+void rack_load();
+
 #endif

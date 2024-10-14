@@ -11,6 +11,7 @@
 #include "midi/midi.h"
 #include "components/oscillator.h"
 #include "rack/rack.h"
+#include "rack/component_handler.h"
 #include "texture_handler.h"
 #include "size.h"
 
@@ -28,11 +29,12 @@ void app_init() {
 
     app->sample_buffer = sample_buffer_init(SAMPLE_RATE / 10);
     app->midi_stream = midi_stream_init();
-    app->root_rack = rack_init(5, NULL);
+    app->root_rack = rack_init(RACK_SIZE, NULL);
     app->current_rack = app->root_rack;
 
     audio_engine_init(callback, analyzer);
     window_init(WINDOW_WIDTH, WINDOW_HEIGHT);
+    component_handler_init();
 
     app->pixel_renderer = pixel_renderer_init(WIDTH, HEIGHT);
 }
@@ -79,12 +81,12 @@ void app_update() {
     if (IsKeyPressed(KEY_S)) rack_cursor_down(app->current_rack);
 
     if (IsKeyPressed(KEY_ONE)) {
-        Component *oscillator = oscillator_init(OSCILLATOR_SINE, 440.0f, 0.2);
+        Component *oscillator = component_create(COMPONENT_OSCILLATOR);
         rack_mount(app->current_rack, oscillator);
     }
 
     if (IsKeyPressed(KEY_TWO)) {
-        Rack *new_rack = rack_init(5, app->current_rack);
+        Rack *new_rack = rack_init(RACK_SIZE, app->current_rack);
         Component *new_rack_comp = rack_component_init(new_rack);
         rack_mount(app->current_rack, new_rack_comp);
     }
@@ -112,9 +114,7 @@ void app_update() {
 void app_render() {
     pixel_renderer_begin(app->pixel_renderer);
         ClearBackground(COLOR_BLACK);
-
-        Vector2 rack_size ={COMPONENT_WIDTH * (app->current_rack->size + 1),COMPONENT_WIDTH * (app->current_rack->size + 1)};
-        rack_render(app->current_rack, RACK_POSITION, rack_size);
+        rack_render(app->current_rack, RACK_POSITION, RACK_DIMENSIONS);
 
         if (audio_engine_is_playing()) {
             DrawText("Playing", WINDOW_PADDING, WINDOW_PADDING, 10, COLOR_WHITE);
@@ -124,7 +124,7 @@ void app_render() {
 
         DrawRectangleV((Vector2){WINDOW_PADDING, WINDOW_PADDING}, (Vector2){WINDOW_PADDING * 6, WINDOW_PADDING * 3.5}, COLOR_DARK_GRAY);
         DrawRectangleV((Vector2){7.5 * WINDOW_PADDING, 2.5 * WINDOW_PADDING}, (Vector2){WINDOW_PADDING * 3.5, WINDOW_PADDING * 8.5}, COLOR_DARK_GRAY);
-        Vector2 size = {WINDOW_PADDING * 3.5, WINDOW_PADDING };
-        oscilloscope_render(app->sample_buffer, OSCILLOSCOPE_POSITION, size);
+
+        oscilloscope_render(app->sample_buffer, OSCILLOSCOPE_POSITION, OSCILLOSCOPE_DIMENSIONS);
     pixel_renderer_end(app->pixel_renderer);
 }

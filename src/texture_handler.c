@@ -12,6 +12,10 @@ const char *texture_kind_path(TextureKind kind) {
             return TEXTURES_FOLDER "empty-cell.png";
         case TEXTURE_CURSOR:
             return TEXTURES_FOLDER "cursor.png";
+        case TEXTURE_OSCILLOSCOPE:
+            return TEXTURES_FOLDER "oscilloscope.png";
+        case TEXTURE_OSCILLATOR:
+            return TEXTURES_FOLDER "oscillator.png";
         default:
             return "";
     }
@@ -39,7 +43,7 @@ void texture_unload(TextureKind kind) {
 }
 
 void texture_unload_all() {
-    for (TextureKind kind = 0; kind < TEXTURES_AMOUNT; ++kind) {
+    for (TextureKind kind = 0; kind < _TEXTURES_AMOUNT; ++kind) {
         texture_unload(kind);
     }
 }

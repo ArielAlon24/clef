@@ -6,7 +6,8 @@
 #include <stdio.h>
 
 void oscilloscope_render(SampleBuffer *sample_buffer, Vector2 position, Vector2 size) {
-    DrawRectangleV(position, size, COLOR_DARK_GRAY);
+    Texture2D background = texture_load(TEXTURE_OSCILLOSCOPE);
+    DrawTextureV(background, position, WHITE);
     sample_buffer_lock(sample_buffer);
     float half_height = size.y / 2;
 

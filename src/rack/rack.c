@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "rack/rack.h"
+#include "rack/component_handler.h"
 #include "macros.h"
 #include "color.h"
 #include "texture_handler.h"
@@ -26,7 +27,7 @@ Rack *rack_init(int size, Rack *parent) {
 }
 
 Component *rack_component_init(Rack *rack) {
-    return component_init(rack_audio_callback, rack_midi_callback, rack_state_destructor, true, RED, rack);
+    return component_init(rack_audio_callback, rack_midi_callback, rack_state_destructor, true, TEXTURE_EMPTY_CELL, rack);
 }
 
 void rack_mount(Rack *rack, Component *component) {
@@ -106,7 +107,7 @@ void rack_render(Rack *rack, Vector2 position, Vector2 size) {
         component_position.x = ((int) i / rack->size) * (COMPONENT_DIMENSIONS.x + padding.x) + position.x;
         component_position.y = ((int) i % rack->size) * (COMPONENT_DIMENSIONS.y + padding.y) + position.y;
         if (component != NULL) {
-            component_render(component, component_position, COMPONENT_DIMENSIONS);
+            component_render(component, component_position);
         } else {
             DrawTextureV(empty_cell_texture, component_position, WHITE);
         }

@@ -1,5 +1,6 @@
 #include "rack/component.h"
 #include "midi/midi_stream.h"
+#include "texture_handler.h"
 #include <stdlib.h>
 #include <assert.h>
 #include <raylib.h>
@@ -7,7 +8,7 @@
 
 Component *component_init(ComponentAudioCallback audio_callback,
                           ComponentMidiCallback midi_callback,
-                          ComponentStateDestructor state_destructor,  bool is_enterable, Color color, void *state) {
+                          ComponentStateDestructor state_destructor, bool is_enterable, TextureKind texture_kind, void *state) {
     Component *component = malloc(sizeof(Component));
     assert(component != NULL);
 
@@ -15,7 +16,7 @@ Component *component_init(ComponentAudioCallback audio_callback,
     component->midi_callback = midi_callback;
     component->state_destructor = state_destructor;
     component->is_enterable = is_enterable;
-    component->color = color;
+    component->texture_kind = texture_kind;
     component->state = state;
 
     return component;
@@ -33,8 +34,8 @@ void component_next_midi(Component *component, const MidiMessage *messages, unsi
     }
 }
 
-void component_render(Component *component, Vector2 position, Vector2 size) {
-    DrawRectangleV(position, size, component->color);
+void component_render(Component *component, Vector2 position) {
+    DrawTextureV(texture_load(component->texture_kind), position, WHITE);
 }
 
 void component_free(Component *component) {

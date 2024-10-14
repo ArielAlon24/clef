@@ -2,6 +2,7 @@
 #define COMPONENT_H
 
 #include "midi/midi_stream.h"
+#include "texture_handler.h"
 #include <raylib.h>
 #include <stdbool.h>
 
@@ -13,7 +14,14 @@ how to destruct the state upon a `component_free` call. The functions `Component
 should be supplied and handle freeing the state correctly. */
 typedef void (*ComponentStateDestructor)(void *state);
 
+typedef enum {
+    COMPONENT_RACK,
+    COMPONENT_OSCILLATOR,
+    _COMPONENT_TYPE_SIZE,
+} ComponentType;
+
 typedef struct {
+    ComponentType type;
     ComponentAudioCallback audio_callback;
     ComponentMidiCallback midi_callback;
     ComponentStateDestructor state_destructor;
@@ -21,21 +29,22 @@ typedef struct {
     /* TODO: Specify `is_enterable` using a ComponentType enum or something (is_enterable sounds weird) */
     bool is_enterable;
 
-    /* TODO: Currently using a single color to draw a component, this will later be a sprite. */
-    Color color;
+    /* TODO: Create a callback for animating the component design */
+    TextureKind texture_kind;
 
     void *state;
 } Component;
 
+
 Component *component_init(ComponentAudioCallback audio_callback,
                           ComponentMidiCallback midi_callback,
-                          ComponentStateDestructor state_destructor, bool is_enterable, Color color, void *state);
+                          ComponentStateDestructor state_destructor, bool is_enterable, TextureKind texture_kind, void *state);
 
 void component_next_audio(Component *component, float *buffer, unsigned int buffer_size);
 
 void component_next_midi(Component *component, const MidiMessage *message, unsigned int count);
 
-void component_render(Component *component, Vector2 position, Vector2 size);
+void component_render(Component *component, Vector2 position);
 
 void component_free(Component *component);
 
