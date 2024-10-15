@@ -16,6 +16,8 @@ const char *texture_kind_path(TextureKind kind) {
             return TEXTURES_FOLDER "oscilloscope.png";
         case TEXTURE_OSCILLATOR:
             return TEXTURES_FOLDER "oscillator.png";
+        case TEXTURE_RACK_PREVIEW:
+            return TEXTURES_FOLDER "rack-preview.png";
         default:
             return "";
     }

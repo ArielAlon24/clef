@@ -31,6 +31,7 @@ void app_init() {
     app->midi_stream = midi_stream_init();
     app->root_rack = rack_init(RACK_SIZE, NULL);
     app->current_rack = app->root_rack;
+    app->component_selector = (ComponentType) 0; /* The first component type */
 
     audio_engine_init(callback, analyzer);
     window_init(WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -80,22 +81,23 @@ void app_update() {
     if (IsKeyPressed(KEY_W)) rack_cursor_up(app->current_rack);
     if (IsKeyPressed(KEY_S)) rack_cursor_down(app->current_rack);
 
-    if (IsKeyPressed(KEY_ONE)) {
-        Component *oscillator = component_create(COMPONENT_OSCILLATOR);
-        rack_mount(app->current_rack, oscillator);
-    }
+    if (IsKeyPressed(KEY_RIGHT)) app->component_selector = (app->component_selector + 1) % _COMPONENT_TYPE_SIZE;
+    if (IsKeyPressed(KEY_LEFT)) app->component_selector = (app->component_selector - 1) % _COMPONENT_TYPE_SIZE;
 
-    if (IsKeyPressed(KEY_TWO)) {
-        Rack *new_rack = rack_init(RACK_SIZE, app->current_rack);
-        Component *new_rack_comp = rack_component_init(new_rack);
-        rack_mount(app->current_rack, new_rack_comp);
+    if (IsKeyPressed(KEY_ENTER)) {
+        Component *component;
+        if (app->component_selector == COMPONENT_RACK) {
+            Rack *new_rack = rack_init(RACK_SIZE, app->current_rack);
+            component = rack_component_init(new_rack);
+        } else {
+            component = component_create(app->component_selector);
+        }
+        rack_mount(app->current_rack, component);
     }
 
     if (IsKeyPressed(KEY_ESCAPE)) {
         Rack *parent = rack_get_parent(app->current_rack);
-        if (parent) {
-            app->current_rack = parent;
-        }
+        if (parent) app->current_rack = parent;
     }
 
     if (IsKeyPressed(KEY_BACKSPACE) && !IsKeyPressedRepeat(KEY_BACKSPACE)) {
@@ -116,15 +118,30 @@ void app_render() {
         ClearBackground(COLOR_BLACK);
         rack_render(app->current_rack, RACK_POSITION, RACK_DIMENSIONS);
 
+        /* Play-Pause panel */
+        DrawRectangleV((Vector2){ WINDOW_PADDING, WINDOW_PADDING }, (Vector2){ CUBIC * 12, CUBIC * 2 }, COLOR_DARK_GRAY);
+
+        /* Component-Settings Panel */
+        DrawRectangleV((Vector2){ WINDOW_PADDING, WINDOW_PADDING + 3 * CUBIC }, (Vector2){ CUBIC * 12, CUBIC * 4 }, COLOR_DARK_GRAY);
+
+        /* Component-Preview Panel */
+        DrawRectangleV((Vector2){ WINDOW_PADDING + 13 * CUBIC, WINDOW_PADDING + 3 * CUBIC }, (Vector2){ CUBIC * 4, CUBIC * 4 }, COLOR_DARK_GRAY);
+
+        /* dB Meter */
+        DrawRectangleV((Vector2){ WINDOW_PADDING + 18 * CUBIC, WINDOW_PADDING + 3 * CUBIC}, (Vector2){ CUBIC * 2, CUBIC * 4 }, COLOR_DARK_GRAY);
+
+        /* Rack Tree Panel */
+        DrawRectangleV((Vector2){ WINDOW_PADDING + 13 * CUBIC, WINDOW_PADDING + 8 * CUBIC}, (Vector2){ CUBIC * 7, CUBIC * 12}, COLOR_DARK_GRAY);
+
+        component_preview(app->component_selector, (Vector2){ WINDOW_PADDING + 14 * CUBIC, WINDOW_PADDING + 4 * CUBIC });
+
+        oscilloscope_render(app->sample_buffer, OSCILLOSCOPE_POSITION, OSCILLOSCOPE_DIMENSIONS);
+
         if (audio_engine_is_playing()) {
             DrawText("Playing", WINDOW_PADDING, WINDOW_PADDING, 10, COLOR_WHITE);
         } else {
             DrawText("Paused", WINDOW_PADDING, WINDOW_PADDING, 10, COLOR_WHITE);
         }
 
-        DrawRectangleV((Vector2){WINDOW_PADDING, WINDOW_PADDING}, (Vector2){WINDOW_PADDING * 6, WINDOW_PADDING * 3.5}, COLOR_DARK_GRAY);
-        DrawRectangleV((Vector2){7.5 * WINDOW_PADDING, 2.5 * WINDOW_PADDING}, (Vector2){WINDOW_PADDING * 3.5, WINDOW_PADDING * 8.5}, COLOR_DARK_GRAY);
-
-        oscilloscope_render(app->sample_buffer, OSCILLOSCOPE_POSITION, OSCILLOSCOPE_DIMENSIONS);
     pixel_renderer_end(app->pixel_renderer);
 }

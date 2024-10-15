@@ -47,6 +47,7 @@ void rack_state_destructor(void *state);
 
 void rack_free(Rack *rack);
 
-void rack_load();
+/* `ComponentPreviewCallback` implementation */
+void rack_preview(Vector2 position);
 
 #endif

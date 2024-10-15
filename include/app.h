@@ -8,12 +8,16 @@
 #include "midi/midi_stream.h"
 #include "rack/rack.h"
 #include "pixel_renderer.h"
+#include "rack/component_handler.h"
 
 typedef struct {
     PixelRenderer *pixel_renderer;
 
     SampleBuffer *sample_buffer;
     MidiStream *midi_stream;
+
+    /* Currently selected component type */
+    ComponentType component_selector;
 
     /* The root rack of all other racks. */
     Rack *root_rack;

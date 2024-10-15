@@ -15,6 +15,9 @@
 /* The (minimum) distance between the window borders and actual GUI */
 #define WINDOW_PADDING (WIDTH / 12)
 
+/* Each GUI component has dimensions of n * CUBIC_SIZE by m * CUBIC_SIZE */
+#define CUBIC (480 / 24)
+
 /* The entire screen is splitted into 12 by 12 cubes which also
 represent the size of a single component */
 #define COMPONENT_WIDTH (WIDTH / 12)
@@ -24,10 +27,10 @@ represent the size of a single component */
 /* The distance between components (same for horizontal and vertical axis)*/
 #define COMPONENT_PADDING (COMPONENT_WIDTH / 2)
 
-#define OSCILLOSCOPE_POSITION (Vector2) { WINDOW_PADDING * 7.5, WINDOW_PADDING * 1 }
-#define OSCILLOSCOPE_DIMENSIONS (Vector2) {WINDOW_PADDING * 3.5, WINDOW_PADDING }
+#define OSCILLOSCOPE_POSITION (Vector2) { CUBIC * 15, CUBIC * 2 }
+#define OSCILLOSCOPE_DIMENSIONS (Vector2) { CUBIC * 7, CUBIC * 2 }
 
 #define RACK_SIZE 5
-#define RACK_POSITION (Vector2) { WINDOW_PADDING, WINDOW_PADDING * 5 }
-#define RACK_DIMENSIONS (Vector2) {COMPONENT_WIDTH * (RACK_SIZE + 1),COMPONENT_WIDTH * (RACK_SIZE + 1)}
+#define RACK_POSITION (Vector2) { CUBIC * 2, CUBIC * 10 }
+#define RACK_DIMENSIONS (Vector2) { COMPONENT_WIDTH * (RACK_SIZE + 1), COMPONENT_WIDTH * (RACK_SIZE + 1)}
 #endif

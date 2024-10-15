@@ -27,7 +27,7 @@ Rack *rack_init(int size, Rack *parent) {
 }
 
 Component *rack_component_init(Rack *rack) {
-    return component_init(rack_audio_callback, rack_midi_callback, rack_state_destructor, true, TEXTURE_EMPTY_CELL, rack);
+    return component_init(rack_audio_callback, rack_midi_callback, rack_state_destructor, true, TEXTURE_RACK_PREVIEW, rack);
 }
 
 void rack_mount(Rack *rack, Component *component) {
@@ -169,4 +169,9 @@ void rack_free(Rack *rack) {
 
     free(rack->components);
     free(rack);
+}
+
+void rack_preview(Vector2 position) {
+    Texture2D texture = texture_load(TEXTURE_RACK_PREVIEW);
+    DrawTextureV(texture, position, WHITE);
 }
