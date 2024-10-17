@@ -119,28 +119,28 @@ void app_render() {
         rack_render(app->current_rack, RACK_POSITION, RACK_DIMENSIONS);
 
         /* Play-Pause panel */
-        DrawRectangleV((Vector2){ WINDOW_PADDING, WINDOW_PADDING }, (Vector2){ CUBIC * 12, CUBIC * 2 }, COLOR_DARK_GRAY);
+        DrawRectangleV((Vector2){ BORDER_PADDING, BORDER_PADDING }, (Vector2){ CUBIC * 12, CUBIC * 2 }, COLOR_DARK_GRAY);
 
         /* Component-Settings Panel */
-        DrawRectangleV((Vector2){ WINDOW_PADDING, WINDOW_PADDING + 3 * CUBIC }, (Vector2){ CUBIC * 12, CUBIC * 4 }, COLOR_DARK_GRAY);
+        DrawRectangleV((Vector2){ BORDER_PADDING, BORDER_PADDING + 3 * CUBIC }, (Vector2){ CUBIC * 12, CUBIC * 4 }, COLOR_DARK_GRAY);
 
         /* Component-Preview Panel */
-        DrawRectangleV((Vector2){ WINDOW_PADDING + 13 * CUBIC, WINDOW_PADDING + 3 * CUBIC }, (Vector2){ CUBIC * 4, CUBIC * 4 }, COLOR_DARK_GRAY);
+        DrawRectangleV((Vector2){ BORDER_PADDING + 13 * CUBIC, BORDER_PADDING + 3 * CUBIC }, (Vector2){ CUBIC * 4, CUBIC * 4 }, COLOR_DARK_GRAY);
 
         /* dB Meter */
-        DrawRectangleV((Vector2){ WINDOW_PADDING + 18 * CUBIC, WINDOW_PADDING + 3 * CUBIC}, (Vector2){ CUBIC * 2, CUBIC * 4 }, COLOR_DARK_GRAY);
+        DrawRectangleV((Vector2){ BORDER_PADDING + 18 * CUBIC, BORDER_PADDING + 3 * CUBIC}, (Vector2){ CUBIC * 2, CUBIC * 4 }, COLOR_DARK_GRAY);
 
         /* Rack Tree Panel */
-        DrawRectangleV((Vector2){ WINDOW_PADDING + 13 * CUBIC, WINDOW_PADDING + 8 * CUBIC}, (Vector2){ CUBIC * 7, CUBIC * 12}, COLOR_DARK_GRAY);
+        DrawRectangleV((Vector2){ BORDER_PADDING + 13 * CUBIC, BORDER_PADDING + 8 * CUBIC}, (Vector2){ CUBIC * 7, CUBIC * 12}, COLOR_DARK_GRAY);
 
-        component_preview(app->component_selector, (Vector2){ WINDOW_PADDING + 14 * CUBIC, WINDOW_PADDING + 4 * CUBIC });
+        component_preview(app->component_selector, (Vector2){ BORDER_PADDING + 14 * CUBIC, BORDER_PADDING + 4 * CUBIC });
 
         oscilloscope_render(app->sample_buffer, OSCILLOSCOPE_POSITION, OSCILLOSCOPE_DIMENSIONS);
 
         if (audio_engine_is_playing()) {
-            DrawText("Playing", WINDOW_PADDING, WINDOW_PADDING, 10, COLOR_WHITE);
+            DrawText("Playing", BORDER_PADDING, BORDER_PADDING, 10, COLOR_WHITE);
         } else {
-            DrawText("Paused", WINDOW_PADDING, WINDOW_PADDING, 10, COLOR_WHITE);
+            DrawText("Paused", BORDER_PADDING, BORDER_PADDING, 10, COLOR_WHITE);
         }
 
     pixel_renderer_end(app->pixel_renderer);

@@ -13,7 +13,7 @@
 #define WINDOW_DIMENSIONS (Vector2) { WINDOW_WIDTH, WINDOW_HEIGHT }
 
 /* The (minimum) distance between the window borders and actual GUI */
-#define WINDOW_PADDING (WIDTH / 12)
+#define BORDER_PADDING (WIDTH / 12)
 
 /* Each GUI component has dimensions of n * CUBIC_SIZE by m * CUBIC_SIZE */
 #define CUBIC (480 / 24)
