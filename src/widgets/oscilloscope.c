@@ -1,9 +1,9 @@
-#include <raylib.h>
-#include "oscilloscope.h"
-#include "sample_buffer.h"
-#include "color.h"
-#include "texture_handler.h"
 #include <stdio.h>
+#include "raylib.h"
+#include "widgets/oscilloscope.h"
+#include "sample_buffer.h"
+#include "constants/color.h"
+#include "texture_handler.h"
 
 void oscilloscope_render(SampleBuffer *sample_buffer, Vector2 position, Vector2 size) {
     Texture2D background = texture_load(TEXTURE_OSCILLOSCOPE);

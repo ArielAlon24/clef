@@ -2,19 +2,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include "color.h"
+#include "constants/size.h"
+#include "constants/color.h"
+#include "widgets/oscilloscope.h"
+#include "widgets/dB_meter.h"
+#include "rack/rack.h"
+#include "rack/component_handler.h"
+#include "midi/midi.h"
 #include "app.h"
 #include "window.h"
 #include "macros.h"
 #include "audio_engine.h"
-#include "oscilloscope.h"
-#include "dB_meter.h"
-#include "midi/midi.h"
-#include "components/oscillator.h"
-#include "rack/rack.h"
-#include "rack/component_handler.h"
 #include "texture_handler.h"
-#include "size.h"
 
 void callback(float *buffer, unsigned int frame_count) {
     rack_next(app->root_rack, app->midi_stream, buffer, frame_count);

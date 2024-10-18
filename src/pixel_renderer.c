@@ -1,13 +1,13 @@
 #include <stdlib.h>
 #include <assert.h>
+#include <stdio.h>
 #include <math.h>
+#include "constants/color.h"
 #include "pixel_renderer.h"
 #include "raylib.h"
 #include "window.h"
 #include "macros.h"
-#include "color.h"
 
-#include <stdio.h>
 
 PixelRenderer *pixel_renderer_init(int width, int height) {
     PixelRenderer *renderer = malloc(sizeof(PixelRenderer));

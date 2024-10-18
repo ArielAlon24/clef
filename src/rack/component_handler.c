@@ -10,7 +10,7 @@
 
 void component_handler_init() {
     LIBRARY_COMPONENT_ENTRY(COMPONENT_OSCILLATOR, oscillator_init, oscillator_preview);
-    LIBRARY_COMPONENT_ENTRY(COMPONENT_RACK,       NULL,       rack_preview);
+    LIBRARY_COMPONENT_ENTRY(COMPONENT_RACK,       NULL,            rack_preview);
 }
 
 Component *component_create(ComponentType type) {

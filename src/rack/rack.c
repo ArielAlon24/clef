@@ -3,10 +3,9 @@
 #include "rack/rack.h"
 #include "rack/component_handler.h"
 #include "macros.h"
-#include "color.h"
 #include "texture_handler.h"
-#include "stdio.h"
-#include "size.h"
+#include "constants/color.h"
+#include "constants/size.h"
 
 Rack *rack_init(int size, Rack *parent) {
     Rack *rack = malloc(sizeof(Rack));

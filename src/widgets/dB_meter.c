@@ -1,11 +1,11 @@
-#include "dB_meter.h"
+#include <stddef.h>
+#include <stdio.h>
+#include "widgets/dB_meter.h"
 #include "raylib.h"
 #include "sample_buffer.h"
 #include "math.h"
 #include "macros.h"
-#include "color.h"
-#include <stddef.h>
-#include <stdio.h>
+#include "constants/color.h"
 
 #define MIN_dB -100.0f
 #define MAX_dB 0.0f
