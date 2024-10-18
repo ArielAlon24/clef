@@ -27,15 +27,20 @@ size_t sample_buffer_size(SampleBuffer *sample_buffer);
 void sample_buffer_lock(SampleBuffer *sample_buffer);
 void sample_buffer_unlock(SampleBuffer *sample_buffer);
 
-/* `sample_buffer_[left | right] must be used with the `sample_buffer_[lock | unlock]` functions */
+/* `sample_buffer_[left | right] must be used with the `sample_buffer_[lock | unlock]` functions.
+They are created so a change in internal representation of the sample_buffer would not require numerous changes */
 float *sample_buffer_left(SampleBuffer *sample_buffer);
 float *sample_buffer_right(SampleBuffer *sample_buffer);
 
 size_t _buffer_find(float *buffer, size_t size, float value, size_t start);
 
-/* sample_buffer_find[left | right] must be used with the `sample_buffer_[lock | unlock]` functions */
+/* sample_buffer_find_[left | right] must be used with the `sample_buffer_[lock | unlock]` functions */
 size_t sample_buffer_find_left(SampleBuffer *sample_buffer, float value);
 size_t sample_buffer_find_right(SampleBuffer *sample_buffer, float value);
+
+/* sample_buffer_max_[left | right] must be used with the `sample_buffer_[lock | unlock]` functions */
+float sample_buffer_max_left(SampleBuffer *sample_buffer, size_t range);
+float sample_buffer_max_right(SampleBuffer *sample_buffer, size_t range);
 
 
 #endif

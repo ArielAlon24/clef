@@ -11,6 +11,7 @@ void oscilloscope_render(SampleBuffer *sample_buffer, Vector2 position, Vector2 
     sample_buffer_lock(sample_buffer);
     float half_height = size.y / 2;
 
+    /* Draw left channel */
     size_t trigger_index = sample_buffer_find_left(sample_buffer, 0.0f);
 
     size_t buffer_size = sample_buffer_size(sample_buffer);
@@ -24,6 +25,7 @@ void oscilloscope_render(SampleBuffer *sample_buffer, Vector2 position, Vector2 
         v0 = v1;
     }
 
+    /* Draw right channel */
     trigger_index = sample_buffer_find_left(sample_buffer, 0.0f);
     buffer = sample_buffer_left(sample_buffer);
 

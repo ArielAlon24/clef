@@ -3,6 +3,7 @@
 #include <stddef.h>
 #include <pthread.h>
 #include "sample_buffer.h"
+#include "macros.h"
 
 SampleBuffer *sample_buffer_init(size_t size) {
     SampleBuffer *sample_buffer = malloc(sizeof(SampleBuffer));
@@ -86,4 +87,23 @@ void sample_buffer_lock(SampleBuffer *sample_buffer) {
 
 void sample_buffer_unlock(SampleBuffer *sample_buffer) {
     pthread_mutex_unlock(&sample_buffer->lock);
+}
+
+float _sample_buffer_max(float *buffer, size_t buffer_size, size_t start, size_t range) {
+    float result = 0;
+    int index = start;
+    for (int i = 0; i < range; ++i) {
+        index = (index - 1) % buffer_size;
+        result = MAX(result, buffer[index]);
+    }
+
+    return result;
+}
+
+float sample_buffer_max_left(SampleBuffer *sample_buffer, size_t range) {
+    return _sample_buffer_max(sample_buffer->left, sample_buffer->size, sample_buffer->index, range);
+}
+
+float sample_buffer_max_right(SampleBuffer *sample_buffer, size_t range) {
+    return _sample_buffer_max(sample_buffer->right, sample_buffer->size, sample_buffer->index, range);
 }

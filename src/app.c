@@ -8,6 +8,7 @@
 #include "macros.h"
 #include "audio_engine.h"
 #include "oscilloscope.h"
+#include "dB_meter.h"
 #include "midi/midi.h"
 #include "components/oscillator.h"
 #include "rack/rack.h"
@@ -128,7 +129,7 @@ void app_render() {
         DrawRectangleV((Vector2){ BORDER_PADDING + 13 * CUBIC, BORDER_PADDING + 3 * CUBIC }, (Vector2){ CUBIC * 4, CUBIC * 4 }, COLOR_DARK_GRAY);
 
         /* dB Meter */
-        DrawRectangleV((Vector2){ BORDER_PADDING + 18 * CUBIC, BORDER_PADDING + 3 * CUBIC}, (Vector2){ CUBIC * 2, CUBIC * 4 }, COLOR_DARK_GRAY);
+        dB_meter_render(app->sample_buffer, (Vector2){ BORDER_PADDING + 18 * CUBIC, BORDER_PADDING + 3 * CUBIC}, (Vector2){ CUBIC * 2, CUBIC * 4 });
 
         /* Rack Tree Panel */
         DrawRectangleV((Vector2){ BORDER_PADDING + 13 * CUBIC, BORDER_PADDING + 8 * CUBIC}, (Vector2){ CUBIC * 7, CUBIC * 12}, COLOR_DARK_GRAY);
