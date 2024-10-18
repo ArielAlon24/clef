@@ -15,8 +15,8 @@ Component *oscillator_init() {
     assert(oscillator != NULL);
 
     oscillator->type = OSCILLATOR_SINE;
-    oscillator->frequency = 440.0;
-    oscillator->amplitude = 0.5;
+    oscillator->frequency = 440.0f;
+    oscillator->amplitude = 0.2f;
     oscillator->phase = 0.0f;
 
     Component *component = component_init(oscillator_audio_callback, oscillator_midi_callback, oscillator_free, false, TEXTURE_OSCILLATOR, oscillator);
@@ -45,9 +45,17 @@ void oscillator_midi_callback(void *state, const MidiMessage *messages, unsigned
     Oscillator *oscillator = (Oscillator *)state;
     MidiMessage message;
     for (int i = 0; i < count; ++i) {
-        switch (messages[i].type) {
+        message = messages[i];
+        switch (message.type) {
             case MIDI_MESSAGE_START:
                 oscillator->phase = 0.0f;
+                break;
+            case MIDI_MESSAGE_SYSEX:
+                if (message.data.one == 1) {
+                    oscillator->frequency -= 50;
+                } else if (message.data.one == 2) {
+                    oscillator->frequency += 50;
+                }
                 break;
         }
     }

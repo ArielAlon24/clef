@@ -30,7 +30,7 @@ Component *rack_get_component_vec(Rack *rack, Vector2 position);
 
 Rack *rack_get_parent(Rack *rack);
 
-void rack_next(Rack *rack, MidiStream *midi_stream, float *buffer, unsigned int buffer_size);
+void rack_next(Rack *rack, const MidiMessage *messages, size_t count, float *buffer, unsigned int buffer_size);
 
 void rack_render(Rack *rack, Vector2 position, Vector2 size);
 

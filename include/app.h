@@ -14,7 +14,11 @@ typedef struct {
     PixelRenderer *pixel_renderer;
 
     SampleBuffer *sample_buffer;
-    MidiStream *midi_stream;
+
+    /* Global MIDI stream used for global events like play - pause */
+    MidiStream *global_stream;
+    /* User created MIDI stream used for interacting with components */
+    MidiStream *user_stream;
 
     /* Currently selected component type */
     ComponentType component_selector;

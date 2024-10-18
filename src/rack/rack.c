@@ -73,22 +73,17 @@ Component *rack_get_component_vec(Rack *rack, Vector2 position) {
 
 Rack *rack_get_parent(Rack *rack) { return rack->parent; }
 
-void rack_next(Rack *rack, MidiStream *midi_stream, float *buffer, unsigned int buffer_size) {
+void rack_next(Rack *rack, const MidiMessage *messages, size_t count, float *buffer, unsigned int buffer_size) {
     pthread_mutex_lock(&rack->lock);
     Component *component;
-
-    size_t midi_messages_count = midi_stream_size(midi_stream);
-    const MidiMessage *messages = midi_stream_messages(midi_stream);
 
     for (int i = 0; i < rack->size * rack->size; ++i) {
         component = rack->components[i];
         if (component != NULL) {
-            component_next_midi(component, messages, midi_messages_count);
+            component_next_midi(component, messages, count);
             component_next_audio(component, buffer, buffer_size);
         }
     }
-
-    midi_stream_flush(midi_stream);
 
     pthread_mutex_unlock(&rack->lock);
 }

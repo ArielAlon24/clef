@@ -15,8 +15,23 @@
 #include "audio_engine.h"
 #include "texture_handler.h"
 
-void callback(float *buffer, unsigned int frame_count) {
-    rack_next(app->root_rack, app->midi_stream, buffer, frame_count);
+void callback(float *buffer, unsigned int buffer_size) {
+    const MidiMessage *messages;
+    size_t count;
+
+    messages = midi_stream_messages(app->global_stream);
+    count = midi_stream_size(app->global_stream);
+    rack_next(app->root_rack, messages, count, buffer, buffer_size);
+    midi_stream_flush(app->global_stream);
+
+    Component *component = rack_get_component(app->current_rack);
+    if (component) {
+        messages = midi_stream_messages(app->user_stream);
+        count = midi_stream_size(app->user_stream);
+        component_next_midi(component, messages, count);
+
+    }
+    midi_stream_flush(app->user_stream);
 }
 
 void analyzer(const float *buffer, unsigned int frame_count) {
@@ -28,7 +43,8 @@ void app_init() {
     assert(app != NULL);
 
     app->sample_buffer = sample_buffer_init(SAMPLE_RATE / 10);
-    app->midi_stream = midi_stream_init();
+    app->global_stream = midi_stream_init();
+    app->user_stream = midi_stream_init();
     app->root_rack = rack_init(RACK_SIZE, NULL);
     app->current_rack = app->root_rack;
     app->component_selector = (ComponentType) 0; /* The first component type */
@@ -46,7 +62,8 @@ void app_free() {
     pixel_renderer_free(app->pixel_renderer);
     sample_buffer_free(app->sample_buffer);
     rack_free(app->root_rack);
-    midi_stream_free(app->midi_stream);
+    midi_stream_free(app->global_stream);
+    midi_stream_free(app->user_stream);
 
     texture_unload_all();
     window_free();
@@ -63,23 +80,23 @@ void app_run() {
 
 void app_update() {
     window_update();
-    MidiMessage message;
-
     if (IsKeyPressed(KEY_SPACE) && !IsKeyPressedRepeat(KEY_SPACE)) {
         if (audio_engine_is_playing()) {
-            MIDI_MESSAGE(message, MIDI_MESSAGE_STOP);
+            midi_stream_write(app->global_stream, MIDI_MESSAGE(MIDI_MESSAGE_STOP));
             audio_engine_pause();
         } else {
-            MIDI_MESSAGE(message, MIDI_MESSAGE_START);
+            midi_stream_write(app->global_stream, MIDI_MESSAGE(MIDI_MESSAGE_START));
             audio_engine_play();
         }
-        midi_stream_write(app->midi_stream, message);
     }
 
     if (IsKeyPressed(KEY_D)) rack_cursor_right(app->current_rack);
     if (IsKeyPressed(KEY_A)) rack_cursor_left(app->current_rack);
     if (IsKeyPressed(KEY_W)) rack_cursor_up(app->current_rack);
     if (IsKeyPressed(KEY_S)) rack_cursor_down(app->current_rack);
+
+    if (IsKeyPressed(KEY_LEFT_BRACKET))  midi_stream_write(app->user_stream, MIDI_MESSAGE1(MIDI_MESSAGE_SYSEX, 1));
+    if (IsKeyPressed(KEY_RIGHT_BRACKET)) midi_stream_write(app->user_stream, MIDI_MESSAGE1(MIDI_MESSAGE_SYSEX, 2));
 
     if (IsKeyPressed(KEY_RIGHT)) app->component_selector = (app->component_selector + 1) % _COMPONENT_TYPE_SIZE;
     if (IsKeyPressed(KEY_LEFT)) app->component_selector = (app->component_selector - 1) % _COMPONENT_TYPE_SIZE;
