@@ -7,8 +7,8 @@
 #define SAMPLE_RATE     44100
 #define FADE_SPEED_RATE 0.5f
 
-typedef void (* AudioEngineCallback)(float* buffer, unsigned int frame_count);
-typedef void (* AudioEngineAnalyzer)(const float *buffer, unsigned int frame_count);
+typedef void (* AudioEngineCallback)(float* buffer, size_t frame_count);
+typedef void (* AudioEngineAnalyzer)(const float *buffer, size_t frame_count);
 
 /*
 AudioEngineState_t defines a state machine for the AudioEngines's thread. It uses both states and transitions.

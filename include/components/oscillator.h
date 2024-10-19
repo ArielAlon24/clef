@@ -2,8 +2,10 @@
 #define OSCILLATOR_H
 
 #include <stddef.h>
-#include "rack/component.h"
-#include "rack/rack.h"
+#include <stdbool.h>
+#include "raylib.h"
+#include "component_system/component.h"
+#include "component_system/component_methods.h"
 
 #define TWO_PI 6.283185307179586
 
@@ -15,30 +17,27 @@ typedef enum {
 } OscillatorType;
 
 typedef struct {
+    Component component;
     OscillatorType type;
     float frequency;
     float amplitude; /* Value between 0 and 1 where 0 is no sound and 1 is full sound */
     float phase;
 } Oscillator;
 
-Component *oscillator_init(Rack *_);
+Component *oscillator_init(Component *parent);
+void oscillator_free(Component *self);
+void oscillator_preview(Vector2 position, Vector2 size);
 
-/* ComponentAudioCallback implementation */
-void oscillator_audio_callback(void *state, float *buffer, unsigned int frame_count);
+void oscillator_audio_callback(Component *self, float *buffer, size_t size);
+void oscillator_midi_callback(Component *self, const MidiMessage *messages, size_t size, bool system);
 
-/* ComponentMidiCallback implementation */
-void oscillator_midi_callback(void *state, const MidiMessage *messages, unsigned int count);
+void oscillator_render(Component *self, Vector2 position, Vector2 size);
 
-/* This are private implementations of each oscillator type, they are used in `oscillator_next` */
-void _oscillator_sine_next(Oscillator *oscillator, float *buffer, unsigned int frame_count);
-void _oscillator_square_next(Oscillator *oscillator, float *buffer, unsigned int frame_count);
-void _oscillator_triangle_next(Oscillator *oscillator, float *buffer, unsigned int frame_count);
-void _oscillator_sawtooth_next(Oscillator *oscillator, float *buffer, unsigned int frame_count);
+void _oscillator_sine_next(Oscillator *oscillator, float *buffer, size_t size);
+void _oscillator_square_next(Oscillator *oscillator, float *buffer, size_t size);
+void _oscillator_triangle_next(Oscillator *oscillator, float *buffer, size_t size);
+void _oscillator_sawtooth_next(Oscillator *oscillator, float *buffer, size_t size);
 
-/* ComponentStateDestructor implementation */
-void oscillator_free(void *state);
-
-/* ComponentPreviewCallback implementation */
-void oscillator_preview(Vector2 position);
+extern ComponentMethods oscillator_methods;
 
 #endif

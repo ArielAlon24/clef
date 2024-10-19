@@ -6,9 +6,9 @@
 #include <pthread.h>
 #include "sample_buffer.h"
 #include "midi/midi_stream.h"
-#include "rack/rack.h"
 #include "pixel_renderer.h"
-#include "rack/component_handler.h"
+#include "component_system/component_system.h"
+#include "components/rack.h"
 
 typedef struct {
     PixelRenderer *pixel_renderer;
@@ -24,9 +24,9 @@ typedef struct {
     ComponentType component_selector;
 
     /* The root rack of all other racks. */
-    Rack *root_rack;
+    Component *root_rack;
     /* The current used rack */
-    Rack *current_rack;
+    Component *current_rack;
 } App ;
 
 static App *app = NULL;
