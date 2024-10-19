@@ -9,9 +9,10 @@ typedef enum {
     _COMPONENT_TYPE_SIZE,
 } ComponentType;
 
-typedef struct {
+typedef struct _component {
     ComponentType type;
     bool is_container;
+    struct _component *parent;
 } Component;
 
 #endif

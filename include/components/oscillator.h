@@ -2,6 +2,7 @@
 #define OSCILLATOR_H
 
 #include <stddef.h>
+#include <stdbool.h>
 #include "raylib.h"
 #include "component_system/component.h"
 #include "component_system/component_methods.h"
@@ -37,18 +38,6 @@ void _oscillator_square_next(Oscillator *oscillator, float *buffer, size_t size)
 void _oscillator_triangle_next(Oscillator *oscillator, float *buffer, size_t size);
 void _oscillator_sawtooth_next(Oscillator *oscillator, float *buffer, size_t size);
 
-extern ComponentMethods oscillator_methods = {
-    .init = oscillator_init,
-    .free = oscillator_free,
-    .preview = oscillator_preview,
-    .audio_callback = oscillator_audio_callback,
-    .midi_callback = oscillator_midi_callback,
-    .settings_render = NULL,
-    .render = oscillator_render,
-    .mount = NULL,
-    .unmount = NULL,
-    .current = NULL,
-    .move_cursor = NULL,
-};
+extern ComponentMethods oscillator_methods;
 
 #endif

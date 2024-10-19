@@ -14,8 +14,9 @@ Component *oscillator_init(Component *parent) {
     Oscillator *oscillator = malloc(sizeof(Oscillator));
     assert(oscillator != NULL);
 
-    oscillator->component.is_container = false;
     oscillator->component.type = COMPONENT_OSCILLATOR;
+    oscillator->component.is_container = false;
+    oscillator->component.parent = parent;
 
     oscillator->type = OSCILLATOR_SINE;
     oscillator->frequency = 440.0f;
@@ -101,3 +102,18 @@ void _oscillator_sawtooth_next(Oscillator *oscillator, float *buffer, size_t siz
 void oscillator_render(Component *self, Vector2 position, Vector2 size) {
     return oscillator_preview(position, size);
 }
+
+ComponentMethods oscillator_methods = {
+    .init = oscillator_init,
+    .free = oscillator_free,
+    .preview = oscillator_preview,
+    .audio_callback = oscillator_audio_callback,
+    .midi_callback = oscillator_midi_callback,
+    .settings_render = NULL,
+    .render = oscillator_render,
+    .rack_render = NULL,
+    .mount = NULL,
+    .unmount = NULL,
+    .current = NULL,
+    .move_cursor = NULL,
+};

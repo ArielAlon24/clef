@@ -24,25 +24,18 @@ void rack_preview(Vector2 position, Vector2 size);
 void rack_audio_callback(Component *self, float *buffer, size_t size);
 void rack_midi_callback(Component *self, const MidiMessage *messages, size_t size, bool system);
 
-void rack_render(Component * self, Vector2 position, Vector2 size);
+void rack_rack_render(Component *self, Vector2 position, Vector2 size);
+void rack_render(Component *self, Vector2 position, Vector2 size);
 
 void rack_mount(Component *self, Component *component);
 void rack_unmount(Component *self);
 Component *rack_current(Component *self);
 void rack_move_cursor(Component *self, Vector2 delta);
 
-extern ComponentMethods oscillator_methods = {
-    .init = rack_init,
-    .free = rack_free,
-    .preview = rack_preview,
-    .audio_callback = rack_audio_callback,
-    .midi_callback = rack_midi_callback,
-    .settings_render = NULL,
-    .render = rack_render,
-    .mount = rack_mount,
-    .unmount = rack_unmount,
-    .current = rack_current,
-    .move_cursor = rack_move_cursor,
-};
+void _rack_mount_vec(Rack *rack, Component *component, Vector2 position);
+void _rack_unmount_vec(Rack *rack, Vector2 position);
+Component *_rack_current_vec(Rack *rack, Vector2 position);
+
+extern ComponentMethods rack_methods;
 
 #endif

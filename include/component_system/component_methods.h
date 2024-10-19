@@ -13,11 +13,12 @@ typedef void (*ComponentPreview)(Vector2 position, Vector2 size);
 
 /* Callback methods */
 typedef void (*ComponentAudioCallback)(Component *self, float *buffer, size_t size);
-typedef void (*ComponentMidiCallback)(Component *self, MidiMessage *messages, size_t size, bool system);
+typedef void (*ComponentMidiCallback)(Component *self, const MidiMessage *messages, size_t size, bool system);
 
 /* Rendering methods */
 typedef void (*ComponentSettingsRender)(Component *self, Vector2 position, Vector2 size);
 typedef void (*ComponentRender)(Component *self, Vector2 position, Vector2 size);
+typedef void (*ComponentRackRender)(Component *self, Vector2 position, Vector2 size);
 
 /* Container related methods */
 typedef void (*ComponentMount)(Component *self, Component *component);
@@ -33,6 +34,7 @@ typedef struct {
     ComponentMidiCallback midi_callback;
     ComponentSettingsRender settings_render;
     ComponentRender render;
+    ComponentRackRender rack_render;
     ComponentMount mount;
     ComponentUnmount unmount;
     ComponentCurrent current;

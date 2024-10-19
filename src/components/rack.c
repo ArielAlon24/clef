@@ -1,8 +1,10 @@
 #include <stdlib.h>
 #include <assert.h>
+#include <stddef.h>
 #include "components/rack.h"
 #include "component_system/component.h"
 #include "component_system/component_methods.h"
+#include "component_system/component_system.h"
 #include "macros.h"
 #include "texture_handler.h"
 #include "constants/color.h"
@@ -14,6 +16,7 @@ Component *rack_init(Component *parent) {
 
     rack->component.is_container = true;
     rack->component.type = COMPONENT_RACK;
+    rack->component.parent = parent;
 
     rack->components = calloc(RACK_SIZE * RACK_SIZE, sizeof(Component *));
     assert(rack->components != NULL);
@@ -55,7 +58,7 @@ void rack_audio_callback(Component *self, float *buffer, size_t size) {
     for (int i = 0; i < RACK_SIZE * RACK_SIZE; ++i) {
         component = rack->components[i];
         if (component != NULL) {
-            component_next_audio(component, buffer, size);
+            component_audio_callback(component, buffer, size);
         }
     }
     pthread_mutex_unlock(&rack->lock);
@@ -70,13 +73,17 @@ void rack_midi_callback(Component *self, const MidiMessage *messages, size_t siz
     for (int i = 0; i < RACK_SIZE * RACK_SIZE; ++i) {
         component = rack->components[i];
         if (component != NULL) {
-            component_next_midi(component, messages, size);
+            component_midi_callback(component, messages, size, system);
         }
     }
     pthread_mutex_unlock(&rack->lock);
 }
 
 void rack_render(Component *self, Vector2 position, Vector2 size) {
+    return rack_preview(position, size);
+}
+
+void rack_rack_render(Component *self, Vector2 position, Vector2 size) {
     Rack *rack = (Rack *)self;
     Texture2D empty_cell_texture = texture_load(TEXTURE_EMPTY_CELL);
     Vector2 component_size = { size.x / (RACK_SIZE + 1), size.y / (RACK_SIZE + 1)};
@@ -90,7 +97,7 @@ void rack_render(Component *self, Vector2 position, Vector2 size) {
         component_position.x = ((int) i / RACK_SIZE) * (COMPONENT_DIMENSIONS.x + padding.x) + position.x;
         component_position.y = ((int) i % RACK_SIZE) * (COMPONENT_DIMENSIONS.y + padding.y) + position.y;
         if (component != NULL) {
-            component_render(component, component_position);
+            component_render(component, component_position, COMPONENT_DIMENSIONS);
         } else {
             DrawTextureV(empty_cell_texture, component_position, WHITE);
         }
@@ -106,10 +113,10 @@ void rack_render(Component *self, Vector2 position, Vector2 size) {
 
 void rack_mount(Component *self, Component *component) {
     Rack *rack = (Rack *)self;
-    return rack_mount_vec(rack, component, rack->cursor);
+    return _rack_mount_vec(rack, component, rack->cursor);
 }
 
-void rack_mount_vec(Rack *rack, Component *component, Vector2 position) {
+void _rack_mount_vec(Rack *rack, Component *component, Vector2 position) {
     pthread_mutex_lock(&rack->lock);
     int index = RACK_SIZE * (int) position.x + (int) position.y;
     Component *previous = rack->components[index];
@@ -122,10 +129,10 @@ void rack_mount_vec(Rack *rack, Component *component, Vector2 position) {
 
 void rack_unmount(Component *self) {
     Rack *rack = (Rack *)self;
-    return rack_unmount_vec(rack, rack->cursor);
+    return _rack_unmount_vec(rack, rack->cursor);
 }
 
-void rack_unmount_vec(Rack *rack, Vector2 position) {
+void _rack_unmount_vec(Rack *rack, Vector2 position) {
     pthread_mutex_lock(&rack->lock);
     int index = RACK_SIZE * (int) position.x + (int) position.y;
     Component *component = rack->components[index];
@@ -138,10 +145,10 @@ void rack_unmount_vec(Rack *rack, Vector2 position) {
 
 Component *rack_current(Component *self) {
     Rack *rack = (Rack *)self;
-    return rack_current_vec(rack, rack->cursor);
+    return _rack_current_vec(rack, rack->cursor);
 }
 
-Component *rack_current_vec(Rack *rack, Vector2 position) {
+Component *_rack_current_vec(Rack *rack, Vector2 position) {
     pthread_mutex_lock(&rack->lock);
     int index = RACK_SIZE * (int) position.x + (int) position.y;
     Component *component = rack->components[index];
@@ -154,3 +161,18 @@ void rack_move_cursor(Component *self, Vector2 delta) {
     rack->cursor.x = CLAMP(rack->cursor.x + delta.x, 0, RACK_SIZE - 1);
     rack->cursor.y = CLAMP(rack->cursor.y + delta.y, 0, RACK_SIZE - 1);
 }
+
+ComponentMethods rack_methods = {
+    .init = rack_init,
+    .free = rack_free,
+    .preview = rack_preview,
+    .audio_callback = rack_audio_callback,
+    .midi_callback = rack_midi_callback,
+    .settings_render = NULL,
+    .rack_render = rack_rack_render,
+    .render = rack_render,
+    .mount = rack_mount,
+    .unmount = rack_unmount,
+    .current = rack_current,
+    .move_cursor = rack_move_cursor,
+};

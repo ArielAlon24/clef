@@ -6,8 +6,8 @@
 #include "constants/color.h"
 #include "widgets/oscilloscope.h"
 #include "widgets/dB_meter.h"
-#include "rack/rack.h"
-#include "rack/component_handler.h"
+#include "component_system/component.h"
+#include "component_system/component_system.h"
 #include "midi/midi.h"
 #include "app.h"
 #include "window.h"
@@ -15,25 +15,27 @@
 #include "audio_engine.h"
 #include "texture_handler.h"
 
-void callback(float *buffer, unsigned int buffer_size) {
+void callback(float *buffer, size_t buffer_size) {
     const MidiMessage *messages;
-    size_t count;
+    size_t messages_size;
 
     messages = midi_stream_messages(app->global_stream);
-    count = midi_stream_size(app->global_stream);
-    rack_next(app->root_rack, messages, count, buffer, buffer_size);
+    messages_size = midi_stream_size(app->global_stream);
+    component_midi_callback(app->root_rack, messages, messages_size, true);
     midi_stream_flush(app->global_stream);
 
-    Component *component = rack_get_component(app->current_rack);
+    Component *component = rack_current(app->current_rack);
     if (component) {
         messages = midi_stream_messages(app->user_stream);
-        count = midi_stream_size(app->user_stream);
-        component_next_midi(component, messages, count);
+        messages_size = midi_stream_size(app->user_stream);
+        component_midi_callback(component, messages, messages_size, false);
     }
     midi_stream_flush(app->user_stream);
+
+    component_audio_callback(app->root_rack, buffer, buffer_size);
 }
 
-void analyzer(const float *buffer, unsigned int frame_count) {
+void analyzer(const float *buffer, size_t frame_count) {
     sample_buffer_push(app->sample_buffer, buffer, frame_count);
 }
 
@@ -41,16 +43,17 @@ void app_init() {
     app = malloc(sizeof(App));
     assert(app != NULL);
 
+    component_system_init();
+
     app->sample_buffer = sample_buffer_init(SAMPLE_RATE / 10);
     app->global_stream = midi_stream_init();
     app->user_stream = midi_stream_init();
-    app->root_rack = rack_init(NULL);
+    app->root_rack = component_init(COMPONENT_RACK, NULL);
     app->current_rack = app->root_rack;
-    app->component_selector = (ComponentType) 0; /* The first component type */
+    app->component_selector = (ComponentType)0; /* The first component type */
 
     audio_engine_init(callback, analyzer);
     window_init(WINDOW_WIDTH, WINDOW_HEIGHT);
-    component_handler_init();
 
     app->pixel_renderer = pixel_renderer_init(WIDTH, HEIGHT);
 }
@@ -60,7 +63,7 @@ void app_free() {
 
     pixel_renderer_free(app->pixel_renderer);
     sample_buffer_free(app->sample_buffer);
-    rack_free(app->root_rack);
+    component_free(app->root_rack);
     midi_stream_free(app->global_stream);
     midi_stream_free(app->user_stream);
 
@@ -89,10 +92,10 @@ void app_update() {
         }
     }
 
-    if (IsKeyPressed(KEY_D)) rack_cursor_right(app->current_rack);
-    if (IsKeyPressed(KEY_A)) rack_cursor_left(app->current_rack);
-    if (IsKeyPressed(KEY_W)) rack_cursor_up(app->current_rack);
-    if (IsKeyPressed(KEY_S)) rack_cursor_down(app->current_rack);
+    if (IsKeyPressed(KEY_D)) component_move_cursor(app->current_rack, (Vector2){1, 0});
+    if (IsKeyPressed(KEY_A)) component_move_cursor(app->current_rack, (Vector2){-1, 0});
+    if (IsKeyPressed(KEY_W)) component_move_cursor(app->current_rack, (Vector2){0, -1});
+    if (IsKeyPressed(KEY_S)) component_move_cursor(app->current_rack, (Vector2){0, 1});
 
     if (IsKeyPressed(KEY_LEFT_BRACKET))  midi_stream_write(app->user_stream, MIDI_MESSAGE1(MIDI_MESSAGE_SYSEX, 1));
     if (IsKeyPressed(KEY_RIGHT_BRACKET)) midi_stream_write(app->user_stream, MIDI_MESSAGE1(MIDI_MESSAGE_SYSEX, 2));
@@ -101,12 +104,12 @@ void app_update() {
     if (IsKeyPressed(KEY_LEFT)) app->component_selector = (app->component_selector - 1) % _COMPONENT_TYPE_SIZE;
 
     if (IsKeyPressed(KEY_ENTER)) {
-        Component *component = component_create(app->component_selector, app->current_rack);
+        Component *component = component_init(app->component_selector, app->current_rack);
         rack_mount(app->current_rack, component);
     }
 
     if (IsKeyPressed(KEY_ESCAPE)) {
-        Rack *parent = rack_get_parent(app->current_rack);
+        Component *parent = app->current_rack->parent;
         if (parent) app->current_rack = parent;
     }
 
@@ -115,10 +118,10 @@ void app_update() {
     }
 
     if (IsKeyPressed(KEY_TAB) && !IsKeyPressedRepeat(KEY_TAB)) {
-        Component *component = rack_get_component(app->current_rack);
+        Component *component = component_current(app->current_rack);
 
-        if (component && component_is_enterable(component)) {
-            app->current_rack = component->state;
+        if (component && component->is_container) {
+            app->current_rack = component;
         }
     }
 }
@@ -126,7 +129,7 @@ void app_update() {
 void app_render() {
     pixel_renderer_begin(app->pixel_renderer);
         ClearBackground(COLOR_BLACK);
-        rack_render(app->current_rack, RACK_POSITION, RACK_DIMENSIONS);
+        component_rack_render(app->current_rack, RACK_POSITION, RACK_DIMENSIONS);
 
         /* Play-Pause panel */
         DrawRectangleV((Vector2){ BORDER_PADDING, BORDER_PADDING }, (Vector2){ CUBIC * 12, CUBIC * 2 }, COLOR_DARK_GRAY);
@@ -143,7 +146,7 @@ void app_render() {
         /* Rack Tree Panel */
         DrawRectangleV((Vector2){ BORDER_PADDING + 13 * CUBIC, BORDER_PADDING + 8 * CUBIC}, (Vector2){ CUBIC * 7, CUBIC * 12}, COLOR_DARK_GRAY);
 
-        component_preview(app->component_selector, (Vector2){ BORDER_PADDING + 14 * CUBIC, BORDER_PADDING + 4 * CUBIC });
+        component_preview(app->component_selector, (Vector2){ BORDER_PADDING + 14 * CUBIC, BORDER_PADDING + 4 * CUBIC }, COMPONENT_DIMENSIONS);
 
         oscilloscope_render(app->sample_buffer, OSCILLOSCOPE_POSITION, OSCILLOSCOPE_DIMENSIONS);
 
