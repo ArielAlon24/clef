@@ -29,7 +29,6 @@ void callback(float *buffer, unsigned int buffer_size) {
         messages = midi_stream_messages(app->user_stream);
         count = midi_stream_size(app->user_stream);
         component_next_midi(component, messages, count);
-
     }
     midi_stream_flush(app->user_stream);
 }
@@ -45,7 +44,7 @@ void app_init() {
     app->sample_buffer = sample_buffer_init(SAMPLE_RATE / 10);
     app->global_stream = midi_stream_init();
     app->user_stream = midi_stream_init();
-    app->root_rack = rack_init(RACK_SIZE, NULL);
+    app->root_rack = rack_init(NULL);
     app->current_rack = app->root_rack;
     app->component_selector = (ComponentType) 0; /* The first component type */
 
@@ -102,13 +101,7 @@ void app_update() {
     if (IsKeyPressed(KEY_LEFT)) app->component_selector = (app->component_selector - 1) % _COMPONENT_TYPE_SIZE;
 
     if (IsKeyPressed(KEY_ENTER)) {
-        Component *component;
-        if (app->component_selector == COMPONENT_RACK) {
-            Rack *new_rack = rack_init(RACK_SIZE, app->current_rack);
-            component = rack_component_init(new_rack);
-        } else {
-            component = component_create(app->component_selector);
-        }
+        Component *component = component_create(app->component_selector, app->current_rack);
         rack_mount(app->current_rack, component);
     }
 

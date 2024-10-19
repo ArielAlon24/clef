@@ -21,7 +21,6 @@ typedef enum {
 } ComponentType;
 
 typedef struct {
-    ComponentType type;
     ComponentAudioCallback audio_callback;
     ComponentMidiCallback midi_callback;
     ComponentStateDestructor state_destructor;

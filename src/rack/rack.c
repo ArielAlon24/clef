@@ -7,13 +7,12 @@
 #include "constants/color.h"
 #include "constants/size.h"
 
-Rack *rack_init(int size, Rack *parent) {
+Rack *rack_init(Rack *parent) {
     Rack *rack = malloc(sizeof(Rack));
     assert(rack != NULL);
 
-    rack->components = calloc(size * size, sizeof(Component *));
+    rack->components = calloc(RACK_SIZE * RACK_SIZE, sizeof(Component *));
     assert(rack->components != NULL);
-    rack->size = size;
 
     rack->cursor.x = 0;
     rack->cursor.y = 0;
@@ -25,7 +24,8 @@ Rack *rack_init(int size, Rack *parent) {
     return rack;
 }
 
-Component *rack_component_init(Rack *rack) {
+Component *rack_component_init(Rack *parent) {
+    Rack *rack = rack_init(parent);
     return component_init(rack_audio_callback, rack_midi_callback, rack_state_destructor, true, TEXTURE_RACK_PREVIEW, rack);
 }
 
@@ -35,7 +35,7 @@ void rack_mount(Rack *rack, Component *component) {
 
 void rack_mount_vec(Rack *rack, Component *component, Vector2 position) {
     pthread_mutex_lock(&rack->lock);
-    int index = rack->size * (int) position.x + (int) position.y;
+    int index = RACK_SIZE * (int) position.x + (int) position.y;
     Component *previous = rack->components[index];
     if (previous != NULL) {
         component_free(previous);
@@ -50,7 +50,7 @@ void rack_unmount(Rack *rack) {
 
 void rack_unmount_vec(Rack *rack, Vector2 position) {
     pthread_mutex_lock(&rack->lock);
-    int index = rack->size * (int) position.x + (int) position.y;
+    int index = RACK_SIZE * (int) position.x + (int) position.y;
     Component *component = rack->components[index];
     if (component != NULL) {
         component_free(component);
@@ -65,7 +65,7 @@ Component *rack_get_component(Rack *rack) {
 
 Component *rack_get_component_vec(Rack *rack, Vector2 position) {
     pthread_mutex_lock(&rack->lock);
-    int index = rack->size * (int) position.x + (int) position.y;
+    int index = RACK_SIZE * (int) position.x + (int) position.y;
     Component *component = rack->components[index];
     pthread_mutex_unlock(&rack->lock);
     return component;
@@ -77,7 +77,7 @@ void rack_next(Rack *rack, const MidiMessage *messages, size_t count, float *buf
     pthread_mutex_lock(&rack->lock);
     Component *component;
 
-    for (int i = 0; i < rack->size * rack->size; ++i) {
+    for (int i = 0; i < RACK_SIZE * RACK_SIZE; ++i) {
         component = rack->components[i];
         if (component != NULL) {
             component_next_midi(component, messages, count);
@@ -90,16 +90,16 @@ void rack_next(Rack *rack, const MidiMessage *messages, size_t count, float *buf
 
 void rack_render(Rack *rack, Vector2 position, Vector2 size) {
     Texture2D empty_cell_texture = texture_load(TEXTURE_EMPTY_CELL);
-    Vector2 component_size = { size.x / (rack->size + 1), size.y / (rack->size + 1)};
-    Vector2 padding = { component_size.x / (rack->size - 1), component_size.y / (rack->size - 1)};
+    Vector2 component_size = { size.x / (RACK_SIZE + 1), size.y / (RACK_SIZE + 1)};
+    Vector2 padding = { component_size.x / (RACK_SIZE - 1), component_size.y / (RACK_SIZE - 1)};
     DrawRectangleV(position, size, COLOR_BLACK);
 
     Component *component;
     Vector2 component_position;
-    for (int i = 0; i < rack->size * rack->size; ++i) {
+    for (int i = 0; i < RACK_SIZE * RACK_SIZE; ++i) {
         component = rack->components[i];
-        component_position.x = ((int) i / rack->size) * (COMPONENT_DIMENSIONS.x + padding.x) + position.x;
-        component_position.y = ((int) i % rack->size) * (COMPONENT_DIMENSIONS.y + padding.y) + position.y;
+        component_position.x = ((int) i / RACK_SIZE) * (COMPONENT_DIMENSIONS.x + padding.x) + position.x;
+        component_position.y = ((int) i % RACK_SIZE) * (COMPONENT_DIMENSIONS.y + padding.y) + position.y;
         if (component != NULL) {
             component_render(component, component_position);
         } else {
@@ -115,16 +115,16 @@ void rack_render(Rack *rack, Vector2 position, Vector2 size) {
     DrawTextureV(cursor_texture, cursor_position, WHITE);
 }
 
-void rack_cursor_right(Rack *rack) { rack->cursor.x = MIN(rack->size - 1, rack->cursor.x + 1); }
+void rack_cursor_right(Rack *rack) { rack->cursor.x = MIN(RACK_SIZE - 1, rack->cursor.x + 1); }
 void rack_cursor_left(Rack *rack) { rack->cursor.x = MAX(0, rack->cursor.x - 1); }
 void rack_cursor_up(Rack *rack) { rack->cursor.y = MAX(0, rack->cursor.y - 1); }
-void rack_cursor_down(Rack *rack) { rack->cursor.y = MIN(rack->size - 1, rack->cursor.y + 1); }
+void rack_cursor_down(Rack *rack) { rack->cursor.y = MIN(RACK_SIZE - 1, rack->cursor.y + 1); }
 
 void rack_audio_callback(void *state, float *buffer, unsigned int buffer_size) {
     Rack *rack = (Rack *)state;
     pthread_mutex_lock(&rack->lock);
     Component *component;
-    for (int i = 0; i < rack->size * rack->size; ++i) {
+    for (int i = 0; i < RACK_SIZE * RACK_SIZE; ++i) {
         component = rack->components[i];
         if (component != NULL) {
             component_next_audio(component, buffer, buffer_size);
@@ -137,7 +137,7 @@ void rack_midi_callback(void *state, const MidiMessage *messages, unsigned int c
     Rack *rack = (Rack *)state;
     pthread_mutex_lock(&rack->lock);
     Component *component;
-    for (int i = 0; i < rack->size * rack->size; ++i) {
+    for (int i = 0; i < RACK_SIZE * RACK_SIZE; ++i) {
         component = rack->components[i];
         if (component != NULL) {
             component_next_midi(component, messages, count);
@@ -152,7 +152,7 @@ void rack_state_destructor(void *state) {
 
 void rack_free(Rack *rack) {
     Component *component;
-    for (int i = 0; i < rack->size * rack->size; ++i) {
+    for (int i = 0; i < RACK_SIZE * RACK_SIZE; ++i) {
         component = rack->components[i];
         if (component != NULL) {
             component_free(component);

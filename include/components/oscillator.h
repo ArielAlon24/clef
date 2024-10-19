@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include "rack/component.h"
+#include "rack/rack.h"
 
 #define TWO_PI 6.283185307179586
 
@@ -20,7 +21,7 @@ typedef struct {
     float phase;
 } Oscillator;
 
-Component *oscillator_init();
+Component *oscillator_init(Rack *_);
 
 /* ComponentAudioCallback implementation */
 void oscillator_audio_callback(void *state, float *buffer, unsigned int frame_count);

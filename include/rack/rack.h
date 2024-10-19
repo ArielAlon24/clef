@@ -7,15 +7,15 @@
 #include "rack/component.h"
 
 typedef struct _rack {
-    int size;
     pthread_mutex_t lock;
     Vector2 cursor;
     struct _rack *parent;
+    /* This is a `RACK_SIZE * RACK_SIZE` long array of Component pointers */
     Component **components;
 } Rack;
 
-Rack *rack_init(int size, Rack *parent);
-Component *rack_component_init(Rack *rack);
+Rack *rack_init(Rack *parent);
+Component *rack_component_init(Rack *parent);
 
 void rack_mount(Rack *rack, Component *component);
 void rack_mount_vec(Rack *rack, Component *component, Vector2 position);

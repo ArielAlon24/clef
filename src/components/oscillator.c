@@ -4,13 +4,14 @@
 #include <stdbool.h>
 #include "components/oscillator.h"
 #include "rack/component.h"
+#include "rack/rack.h"
 #include "macros.h"
 #include "midi/midi_stream.h"
 #include "audio_engine.h"
 #include "texture_handler.h"
 #include "rack/component_handler.h"
 
-Component *oscillator_init() {
+Component *oscillator_init(Rack *_) {
     Oscillator *oscillator = malloc(sizeof(Oscillator));
     assert(oscillator != NULL);
 
