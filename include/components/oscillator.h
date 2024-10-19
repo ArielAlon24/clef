@@ -2,6 +2,7 @@
 #define OSCILLATOR_H
 
 #include <stddef.h>
+#include "raylib.h"
 #include "component_system/component.h"
 #include "component_system/component_methods.h"
 
