@@ -16,22 +16,6 @@
 #include "texture_handler.h"
 
 void callback(float *buffer, size_t buffer_size) {
-    const MidiMessage *messages;
-    size_t messages_size;
-
-    messages = midi_stream_messages(app->global_stream);
-    messages_size = midi_stream_size(app->global_stream);
-    component_midi_callback(app->root_rack, messages, messages_size, true);
-    midi_stream_flush(app->global_stream);
-
-    Component *component = rack_current(app->current_rack);
-    if (component) {
-        messages = midi_stream_messages(app->user_stream);
-        messages_size = midi_stream_size(app->user_stream);
-        component_midi_callback(component, messages, messages_size, false);
-    }
-    midi_stream_flush(app->user_stream);
-
     component_audio_callback(app->root_rack, buffer, buffer_size);
 }
 
@@ -80,6 +64,9 @@ void app_run() {
     }
 }
 
+
+KeyboardKey MIDI_KEYS[] = {KEY_LEFT_BRACKET, KEY_RIGHT_BRACKET, KEY_C};
+
 void app_update() {
     window_update();
     if (IsKeyPressed(KEY_SPACE) && !IsKeyPressedRepeat(KEY_SPACE)) {
@@ -97,8 +84,11 @@ void app_update() {
     if (IsKeyPressed(KEY_W)) component_move_cursor(app->current_rack, (Vector2){0, -1});
     if (IsKeyPressed(KEY_S)) component_move_cursor(app->current_rack, (Vector2){0, 1});
 
-    if (IsKeyPressed(KEY_LEFT_BRACKET))  midi_stream_write(app->user_stream, MIDI_MESSAGE1(MIDI_MESSAGE_SYSEX, 1));
-    if (IsKeyPressed(KEY_RIGHT_BRACKET)) midi_stream_write(app->user_stream, MIDI_MESSAGE1(MIDI_MESSAGE_SYSEX, 2));
+    for (int i = 0; i < LEN(MIDI_KEYS); ++i) {
+        if (IsKeyPressed(MIDI_KEYS[i])) {
+            midi_stream_write(app->user_stream, MIDI_MESSAGE1(MIDI_MESSAGE_SYSEX, MIDI_KEYS[i]));
+        }
+    }
 
     if (IsKeyPressed(KEY_RIGHT)) app->component_selector = (app->component_selector + 1) % _COMPONENT_TYPE_SIZE;
     if (IsKeyPressed(KEY_LEFT)) app->component_selector = (app->component_selector - 1) % _COMPONENT_TYPE_SIZE;
@@ -124,6 +114,8 @@ void app_update() {
             app->current_rack = component;
         }
     }
+
+    app_dispatch_midi();
 }
 
 void app_render() {
@@ -136,6 +128,10 @@ void app_render() {
 
         /* Component-Settings Panel */
         DrawRectangleV((Vector2){ BORDER_PADDING, BORDER_PADDING + 3 * CUBIC }, (Vector2){ CUBIC * 12, CUBIC * 4 }, COLOR_DARK_GRAY);
+        Component *component = component_current(app->current_rack);
+        if (component) {
+            component_settings_render(component, (Vector2){ BORDER_PADDING, BORDER_PADDING + 3 * CUBIC }, (Vector2){ CUBIC * 12, CUBIC * 4 });
+        }
 
         /* Component-Preview Panel */
         DrawRectangleV((Vector2){ BORDER_PADDING + 13 * CUBIC, BORDER_PADDING + 3 * CUBIC }, (Vector2){ CUBIC * 4, CUBIC * 4 }, COLOR_DARK_GRAY);
@@ -157,4 +153,23 @@ void app_render() {
         }
 
     pixel_renderer_end(app->pixel_renderer);
+}
+
+
+void app_dispatch_midi() {
+    const MidiMessage *messages;
+    size_t messages_size;
+
+    messages = midi_stream_messages(app->global_stream);
+    messages_size = midi_stream_size(app->global_stream);
+    component_midi_callback(app->root_rack, messages, messages_size, true);
+    midi_stream_flush(app->global_stream);
+
+    Component *component = rack_current(app->current_rack);
+    if (component) {
+        messages = midi_stream_messages(app->user_stream);
+        messages_size = midi_stream_size(app->user_stream);
+        component_midi_callback(component, messages, messages_size, false);
+    }
+    midi_stream_flush(app->user_stream);
 }

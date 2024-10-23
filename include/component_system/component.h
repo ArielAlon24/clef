@@ -6,6 +6,7 @@
 typedef enum {
     COMPONENT_OSCILLATOR,
     COMPONENT_RACK,
+    COMPONENT_ENVELOPE,
     _COMPONENT_TYPE_SIZE,
 } ComponentType;
 

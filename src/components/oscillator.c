@@ -2,6 +2,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include "constants/color.h"
 #include "macros.h"
 #include "midi/midi_stream.h"
 #include "audio_engine.h"
@@ -9,6 +10,21 @@
 #include "components/oscillator.h"
 #include "component_system/component.h"
 #include "component_system/component_methods.h"
+
+const char *oscillator_type_to_str(OscillatorType type) {
+    switch (type) {
+        case OSCILLATOR_SINE:
+            return "sine";
+        case OSCILLATOR_SQUARE:
+            return "square";
+        case OSCILLATOR_TRIANGLE:
+            return "triangle";
+        case OSCILLATOR_SAWTOOTH:
+            return "sawtooth";
+        default:
+            UNREACHABLE
+    }
+}
 
 Component *oscillator_init(Component *parent) {
     Oscillator *oscillator = malloc(sizeof(Oscillator));
@@ -50,6 +66,8 @@ void oscillator_audio_callback(Component *self, float *buffer, size_t size) {
             return _oscillator_triangle_next(oscillator, buffer, size);
         case OSCILLATOR_SAWTOOTH:
             return _oscillator_sawtooth_next(oscillator, buffer, size);
+        default:
+            UNREACHABLE;
     }
 }
 
@@ -63,14 +81,36 @@ void oscillator_midi_callback(Component *self, const MidiMessage *messages, size
                 oscillator->phase = 0.0f;
                 break;
             case MIDI_MESSAGE_SYSEX:
-                if (message.data.one == 1) {
-                    oscillator->frequency -= 50;
-                } else if (message.data.one == 2) {
-                    oscillator->frequency += 50;
+                switch (message.data.one) {
+                    case KEY_LEFT_BRACKET:
+                        oscillator->frequency -= 50;
+                        break;
+                    case KEY_RIGHT_BRACKET:
+                        oscillator->frequency += 50;
+                        break;
+                    case KEY_C:
+                        oscillator->type = (oscillator->type + 1) % _OSCILLATOR_TYPE_SIZE;
+                        break;
                 }
-                break;
         }
     }
+}
+
+void oscillator_settings_render(Component* self, Vector2 position, Vector2 size) {
+    Oscillator *oscillator = (Oscillator *)self;
+    char frequency[25];
+    snprintf(frequency, 25, "Frequency: %.2f Hz", oscillator->frequency);
+
+    DrawText(frequency, position.x, position.y, 10, COLOR_WHITE);
+
+    char type[20];
+    snprintf(type, 20, "Type: %s", oscillator_type_to_str(oscillator->type));
+
+    DrawText(type,  position.x, position.y + size.y / 2, 10, COLOR_WHITE);
+}
+
+void oscillator_render(Component *self, Vector2 position, Vector2 size) {
+    return oscillator_preview(position, size);
 }
 
 void _oscillator_sine_next(Oscillator *oscillator, float *buffer, size_t size) {
@@ -99,17 +139,13 @@ void _oscillator_square_next(Oscillator *oscillator, float *buffer, size_t size)
 void _oscillator_triangle_next(Oscillator *oscillator, float *buffer, size_t size) { NOT_IMPLEMENTED }
 void _oscillator_sawtooth_next(Oscillator *oscillator, float *buffer, size_t size) { NOT_IMPLEMENTED }
 
-void oscillator_render(Component *self, Vector2 position, Vector2 size) {
-    return oscillator_preview(position, size);
-}
-
 ComponentMethods oscillator_methods = {
     .init = oscillator_init,
     .free = oscillator_free,
     .preview = oscillator_preview,
     .audio_callback = oscillator_audio_callback,
     .midi_callback = oscillator_midi_callback,
-    .settings_render = NULL,
+    .settings_render = oscillator_settings_render,
     .render = oscillator_render,
     .rack_render = NULL,
     .mount = NULL,

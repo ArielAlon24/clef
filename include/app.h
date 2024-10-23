@@ -39,4 +39,6 @@ void app_run();
 void app_update();
 void app_render();
 
+void app_dispatch_midi();
+
 #endif

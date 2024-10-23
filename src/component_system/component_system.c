@@ -4,6 +4,10 @@
 #include "component_system/component.h"
 #include "component_system/component_methods.h"
 
+#include "components/oscillator.h"
+#include "components/rack.h"
+#include "components/envelope.h"
+
 #define COMPONENT_METHOD_CALL(type, method, ...) \
     ComponentMethods methods = COMPONENT_METHODS_MAPPING[(type)]; \
     assert(methods.method != NULL); \
@@ -12,6 +16,7 @@
 void component_system_init(void) {
     COMPONENT_METHODS_MAPPING[COMPONENT_OSCILLATOR] = oscillator_methods;
     COMPONENT_METHODS_MAPPING[COMPONENT_RACK] = rack_methods;
+    COMPONENT_METHODS_MAPPING[COMPONENT_ENVELOPE] = envelope_methods;
 }
 
 Component *component_init(ComponentType type, Component *parent) {

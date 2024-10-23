@@ -79,6 +79,9 @@ void rack_midi_callback(Component *self, const MidiMessage *messages, size_t siz
     pthread_mutex_unlock(&rack->lock);
 }
 
+/* TODO: Create `rack_settings_render` */
+void rack_settings_render(Component *self, Vector2 position, Vector2 size) {}
+
 void rack_render(Component *self, Vector2 position, Vector2 size) {
     return rack_preview(position, size);
 }
@@ -168,7 +171,7 @@ ComponentMethods rack_methods = {
     .preview = rack_preview,
     .audio_callback = rack_audio_callback,
     .midi_callback = rack_midi_callback,
-    .settings_render = NULL,
+    .settings_render = rack_settings_render,
     .rack_render = rack_rack_render,
     .render = rack_render,
     .mount = rack_mount,

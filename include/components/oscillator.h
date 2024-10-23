@@ -14,7 +14,10 @@ typedef enum {
     OSCILLATOR_SQUARE,
     OSCILLATOR_TRIANGLE,
     OSCILLATOR_SAWTOOTH,
+    _OSCILLATOR_TYPE_SIZE,
 } OscillatorType;
+
+const char *oscillator_type_to_str(OscillatorType type);
 
 typedef struct {
     Component component;
@@ -31,6 +34,7 @@ void oscillator_preview(Vector2 position, Vector2 size);
 void oscillator_audio_callback(Component *self, float *buffer, size_t size);
 void oscillator_midi_callback(Component *self, const MidiMessage *messages, size_t size, bool system);
 
+void oscillator_settings_render(Component *self, Vector2 position, Vector2 size);
 void oscillator_render(Component *self, Vector2 position, Vector2 size);
 
 void _oscillator_sine_next(Oscillator *oscillator, float *buffer, size_t size);
