@@ -1,11 +1,13 @@
 #ifndef TEXTURE_HANDLER_H
 #define TEXTURE_HANDLER_H
 
+#include <unistd.h>
 #include "raylib.h"
 
-#define TEXTURES_FOLDER "resources/textures/"
+#define TEXTURES_FOLDER "/resources/textures/"
 
 /* TODO: This becoming a bit hard to maintain, maybe a directory based loader? */
+/* TODO: Currently breaking when executing now from the build directory */
 
 typedef enum {
     TEXTURE_CELL,

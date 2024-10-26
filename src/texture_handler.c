@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 /* `id != 0` is used as it is the first attribute of the Texture struct
-and the value `0` denotes cannot be given to a loaded texture.  */
+and the value `0` cannot be given to a loaded texture.  */
 #define IS_TEXTURE_LOADED(texture) (texture.id != 0)
 
 const char *texture_kind_path(TextureKind kind) {
