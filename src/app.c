@@ -64,7 +64,6 @@ void app_run() {
     }
 }
 
-
 KeyboardKey MIDI_KEYS[] = {KEY_LEFT_BRACKET, KEY_RIGHT_BRACKET, KEY_C};
 
 void app_update() {

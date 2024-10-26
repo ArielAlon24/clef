@@ -128,8 +128,8 @@ void _oscillator_sine_next(Oscillator *oscillator, float *buffer, size_t size) {
 void _oscillator_square_next(Oscillator *oscillator, float *buffer, size_t size) {
     for (size_t i = 0; i < size * 2; i += 2) {
         float sample = (sinf(oscillator->phase) >= 0.0f) ? oscillator->amplitude : -oscillator->amplitude;
-        buffer[i] = sample;
-        buffer[i + 1] = sample;
+        buffer[i] += sample;
+        buffer[i + 1] += sample;
 
         oscillator->phase += (TWO_PI * oscillator->frequency) / SAMPLE_RATE;
         if (oscillator->phase > TWO_PI) { oscillator->phase -= TWO_PI; }
