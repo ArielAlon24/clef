@@ -88,9 +88,8 @@ void rack_render(Component *self, Vector2 position, Vector2 size) {
 
 void rack_rack_render(Component *self, Vector2 position, Vector2 size) {
     Rack *rack = (Rack *)self;
-    Texture2D empty_cell_texture = texture_load(TEXTURE_EMPTY_CELL);
-    Vector2 component_size = { size.x / (RACK_SIZE + 1), size.y / (RACK_SIZE + 1)};
-    Vector2 padding = { component_size.x / (RACK_SIZE - 1), component_size.y / (RACK_SIZE - 1)};
+    Texture2D empty_cell_texture = texture_load(TEXTURE_CELL);
+    Vector2 padding = { COMPONENT_DIMENSIONS.x / (RACK_SIZE - 1), COMPONENT_DIMENSIONS.y / (RACK_SIZE - 1)};
     DrawRectangleV(position, size, COLOR_BLACK);
 
     Component *component;
@@ -108,8 +107,8 @@ void rack_rack_render(Component *self, Vector2 position, Vector2 size) {
 
     Texture2D cursor_texture = texture_load(TEXTURE_CURSOR);
     Vector2 cursor_position;
-    cursor_position.x = rack->cursor.x * (COMPONENT_DIMENSIONS.x + padding.x) + position.x;
-    cursor_position.y = rack->cursor.y * (COMPONENT_DIMENSIONS.y + padding.y) + position.y;
+    cursor_position.x = rack->cursor.x * (COMPONENT_DIMENSIONS.x + padding.x) + position.x - 1;
+    cursor_position.y = rack->cursor.y * (COMPONENT_DIMENSIONS.y + padding.y) + position.y - 1;
 
     DrawTextureV(cursor_texture, cursor_position, WHITE);
 }

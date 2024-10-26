@@ -8,8 +8,8 @@ and the value `0` denotes cannot be given to a loaded texture.  */
 
 const char *texture_kind_path(TextureKind kind) {
     switch (kind) {
-        case TEXTURE_EMPTY_CELL:
-            return TEXTURES_FOLDER "empty-cell.png";
+        case TEXTURE_CELL:
+            return TEXTURES_FOLDER "cell.png";
         case TEXTURE_CURSOR:
             return TEXTURES_FOLDER "cursor.png";
         case TEXTURE_OSCILLOSCOPE:
@@ -20,6 +20,14 @@ const char *texture_kind_path(TextureKind kind) {
             return TEXTURES_FOLDER "rack-preview.png";
         case TEXTURE_ENVELOPE:
             return TEXTURES_FOLDER "envelope.png";
+        case TEXTURE_SETTINGS_PANEL:
+            return TEXTURES_FOLDER "settings-panel.png";
+        case TEXTURE_PLAY_PAUSE_PANEL:
+            return TEXTURES_FOLDER "play-pause-panel.png";
+        case TEXTURE_PLAY:
+            return TEXTURES_FOLDER "play.png";
+        case TEXTURE_PAUSE:
+            return TEXTURES_FOLDER "pause.png";
         default:
             return "";
     }

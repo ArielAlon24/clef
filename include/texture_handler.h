@@ -5,13 +5,19 @@
 
 #define TEXTURES_FOLDER "resources/textures/"
 
+/* TODO: This becoming a bit hard to maintain, maybe a directory based loader? */
+
 typedef enum {
-    TEXTURE_EMPTY_CELL,
+    TEXTURE_CELL,
     TEXTURE_CURSOR,
     TEXTURE_OSCILLOSCOPE,
     TEXTURE_OSCILLATOR,
     TEXTURE_RACK_PREVIEW,
     TEXTURE_ENVELOPE,
+    TEXTURE_SETTINGS_PANEL,
+    TEXTURE_PLAY_PAUSE_PANEL,
+    TEXTURE_PLAY,
+    TEXTURE_PAUSE,
     _TEXTURES_AMOUNT,
 } TextureKind;
 

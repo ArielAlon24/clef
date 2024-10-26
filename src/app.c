@@ -6,6 +6,8 @@
 #include "constants/color.h"
 #include "widgets/oscilloscope.h"
 #include "widgets/dB_meter.h"
+#include "widgets/settings_panel.h"
+#include "widgets/play_pause_panel.h"
 #include "component_system/component.h"
 #include "component_system/component_system.h"
 #include "midi/midi.h"
@@ -90,7 +92,7 @@ void app_update() {
     }
 
     if (IsKeyPressed(KEY_RIGHT)) app->component_selector = (app->component_selector + 1) % _COMPONENT_TYPE_SIZE;
-    if (IsKeyPressed(KEY_LEFT)) app->component_selector = (app->component_selector - 1) % _COMPONENT_TYPE_SIZE;
+    if (IsKeyPressed(KEY_LEFT)) app->component_selector = (app->component_selector + _COMPONENT_TYPE_SIZE - 1) % _COMPONENT_TYPE_SIZE;
 
     if (IsKeyPressed(KEY_ENTER)) {
         Component *component = component_init(app->component_selector, app->current_rack);
@@ -120,36 +122,21 @@ void app_update() {
 void app_render() {
     pixel_renderer_begin(app->pixel_renderer);
         ClearBackground(COLOR_BLACK);
-        component_rack_render(app->current_rack, RACK_POSITION, RACK_DIMENSIONS);
-
-        /* Play-Pause panel */
-        DrawRectangleV((Vector2){ BORDER_PADDING, BORDER_PADDING }, (Vector2){ CUBIC * 12, CUBIC * 2 }, COLOR_DARK_GRAY);
-
-        /* Component-Settings Panel */
-        DrawRectangleV((Vector2){ BORDER_PADDING, BORDER_PADDING + 3 * CUBIC }, (Vector2){ CUBIC * 12, CUBIC * 4 }, COLOR_DARK_GRAY);
-        Component *component = component_current(app->current_rack);
-        if (component) {
-            component_settings_render(component, (Vector2){ BORDER_PADDING, BORDER_PADDING + 3 * CUBIC }, (Vector2){ CUBIC * 12, CUBIC * 4 });
-        }
-
+        /* TODO: Turn each element commented here into a widget render function */
         /* Component-Preview Panel */
         DrawRectangleV((Vector2){ BORDER_PADDING + 13 * CUBIC, BORDER_PADDING + 3 * CUBIC }, (Vector2){ CUBIC * 4, CUBIC * 4 }, COLOR_DARK_GRAY);
-
-        /* dB Meter */
-        dB_meter_render(app->sample_buffer, (Vector2){ BORDER_PADDING + 18 * CUBIC, BORDER_PADDING + 3 * CUBIC}, (Vector2){ CUBIC * 2, CUBIC * 4 });
 
         /* Rack Tree Panel */
         DrawRectangleV((Vector2){ BORDER_PADDING + 13 * CUBIC, BORDER_PADDING + 8 * CUBIC}, (Vector2){ CUBIC * 7, CUBIC * 12}, COLOR_DARK_GRAY);
 
+        /* Component Preview Panel */
         component_preview(app->component_selector, (Vector2){ BORDER_PADDING + 14 * CUBIC, BORDER_PADDING + 4 * CUBIC }, COMPONENT_DIMENSIONS);
 
+        play_pause_panel_render(app, PLAY_PAUSE_PANEL_POSITION, PLAY_PAUSE_PANEL_DIMENSIONS);
+        settings_panel_render(app, SETTINGS_PANEL_POSITION, SETTINGS_PANEL_DIMENSIONS);
+        component_rack_render(app->current_rack, RACK_POSITION, RACK_DIMENSIONS);
+        dB_meter_render(app->sample_buffer, DB_METER_POSITION, DB_METER_DIMENSIONS);
         oscilloscope_render(app->sample_buffer, OSCILLOSCOPE_POSITION, OSCILLOSCOPE_DIMENSIONS);
-
-        if (audio_engine_is_playing()) {
-            DrawText("Playing", BORDER_PADDING, BORDER_PADDING, 10, COLOR_WHITE);
-        } else {
-            DrawText("Paused", BORDER_PADDING, BORDER_PADDING, 10, COLOR_WHITE);
-        }
 
     pixel_renderer_end(app->pixel_renderer);
 }
