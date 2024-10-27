@@ -118,7 +118,6 @@ void _oscillator_sine_next(Oscillator *oscillator, float *buffer, size_t size) {
         float sample = oscillator->amplitude * sinf(oscillator->phase);
         buffer[i] += sample;
         buffer[i + 1] += sample;
-        buffer[i + 1] *= -1;
 
         oscillator->phase += (TWO_PI * oscillator->frequency) / SAMPLE_RATE;
         if (oscillator->phase > TWO_PI) { oscillator->phase -= TWO_PI; }

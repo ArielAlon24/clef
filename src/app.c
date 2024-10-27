@@ -4,10 +4,11 @@
 #include <assert.h>
 #include "constants/size.h"
 #include "constants/color.h"
-#include "widgets/oscilloscope.h"
-#include "widgets/dB_meter.h"
-#include "widgets/settings_panel.h"
-#include "widgets/play_pause_panel.h"
+#include "panels/oscilloscope.h"
+#include "panels/dB_meter.h"
+#include "panels/settings_panel.h"
+#include "panels/play_pause_panel.h"
+#include "panels/component_preview_panel.h"
 #include "component_system/component.h"
 #include "component_system/component_system.h"
 #include "midi/midi.h"
@@ -16,6 +17,10 @@
 #include "macros.h"
 #include "audio_engine.h"
 #include "texture_handler.h"
+
+void pre() {
+    app_dispatch_midi();
+}
 
 void callback(float *buffer, size_t buffer_size) {
     component_audio_callback(app->root_rack, buffer, buffer_size);
@@ -38,7 +43,7 @@ void app_init() {
     app->current_rack = app->root_rack;
     app->component_selector = (ComponentType)0; /* The first component type */
 
-    audio_engine_init(callback, analyzer);
+    audio_engine_init(pre, callback, analyzer);
     window_init(WINDOW_WIDTH, WINDOW_HEIGHT);
 
     app->pixel_renderer = pixel_renderer_init(WIDTH, HEIGHT);
@@ -115,23 +120,20 @@ void app_update() {
             app->current_rack = component;
         }
     }
-
-    app_dispatch_midi();
 }
 
 void app_render() {
     pixel_renderer_begin(app->pixel_renderer);
         ClearBackground(COLOR_BLACK);
         /* TODO: Turn each element commented here into a widget render function */
-        /* Component-Preview Panel */
-        DrawRectangleV((Vector2){ BORDER_PADDING + 13 * CUBIC, BORDER_PADDING + 3 * CUBIC }, (Vector2){ CUBIC * 4, CUBIC * 4 }, COLOR_DARK_GRAY);
 
         /* Rack Tree Panel */
         DrawRectangleV((Vector2){ BORDER_PADDING + 13 * CUBIC, BORDER_PADDING + 8 * CUBIC}, (Vector2){ CUBIC * 7, CUBIC * 12}, COLOR_DARK_GRAY);
 
-        /* Component Preview Panel */
-        component_preview(app->component_selector, (Vector2){ BORDER_PADDING + 14 * CUBIC, BORDER_PADDING + 4 * CUBIC }, COMPONENT_DIMENSIONS);
-
+        component_preview_panel_render(app,
+            COMPONENT_PREVIEW_PANEL_POSITION, COMPONENT_PREVIEW_PANEL_DIMENSIONS,
+            COMPONENT_PREVIEW_COMPONENT_POSITION, COMPONENT_DIMENSIONS
+        );
         play_pause_panel_render(app, PLAY_PAUSE_PANEL_POSITION, PLAY_PAUSE_PANEL_DIMENSIONS);
         settings_panel_render(app, SETTINGS_PANEL_POSITION, SETTINGS_PANEL_DIMENSIONS);
         component_rack_render(app->current_rack, RACK_POSITION, RACK_DIMENSIONS);
