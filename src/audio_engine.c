@@ -7,9 +7,10 @@
 #include <pthread.h>
 #include <stdbool.h>
 
-void audio_engine_init(AudioEngineCallback callback, AudioEngineAnalyzer analyzer) {
+void audio_engine_init(AudioEnginePre pre, AudioEngineCallback callback, AudioEngineAnalyzer analyzer) {
     audio_engine = malloc(sizeof(AudioEngine));
     audio_engine->amplitude = 0.0f;
+    audio_engine->pre = pre;
     audio_engine->callback = callback;
     audio_engine->analyzer = analyzer;
 
@@ -38,6 +39,7 @@ void audio_engine_init(AudioEngineCallback callback, AudioEngineAnalyzer analyze
 }
 
 void _audio_engine_callback(ma_device* device, void* output, const void* input, ma_uint32 frame_count) {
+    audio_engine->pre();
     float *buffer = (float *)output;
     memset(buffer, 0, frame_count * 2 * sizeof(float));
 

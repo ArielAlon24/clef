@@ -9,6 +9,7 @@
 
 typedef void (* AudioEngineCallback)(float* buffer, size_t frame_count);
 typedef void (* AudioEngineAnalyzer)(const float *buffer, size_t frame_count);
+typedef void (* AudioEnginePre)();
 
 /*
 AudioEngineState_t defines a state machine for the AudioEngines's thread. It uses both states and transitions.
@@ -31,6 +32,7 @@ typedef enum {
 typedef struct {
     ma_device device;
     ma_device_config config;
+    AudioEnginePre pre;
     AudioEngineCallback callback;
     AudioEngineAnalyzer analyzer;
     pthread_rwlock_t lock;
@@ -42,7 +44,7 @@ static AudioEngine *audio_engine = NULL;
 
 void _audio_engine_callback(ma_device* device, void* output, const void* input, ma_uint32 frame_count);
 
-void audio_engine_init(AudioEngineCallback callback, AudioEngineAnalyzer analyzer);
+void audio_engine_init(AudioEnginePre pre, AudioEngineCallback callback, AudioEngineAnalyzer analyzer);
 void audio_engine_free();
 
 void audio_engine_play();
