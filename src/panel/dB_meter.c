@@ -1,11 +1,12 @@
 #include <stddef.h>
 #include <stdio.h>
-#include "widgets/dB_meter.h"
+#include "panels/dB_meter.h"
 #include "raylib.h"
 #include "sample_buffer.h"
 #include "math.h"
 #include "macros.h"
 #include "constants/color.h"
+#include "texture_handler.h"
 
 #define MIN_dB -100.0f
 #define MAX_dB 0.0f
@@ -14,7 +15,8 @@
 #define SEARCH_RANGE 1000
 
 void dB_meter_render(SampleBuffer *sample_buffer, Vector2 position, Vector2 size) {
-    DrawRectangleV(position, size, COLOR_DARK_GRAY);
+    Texture2D dB_meter_texture = texture_load(TEXTURE_DB_METER);
+    DrawTextureV(dB_meter_texture, position, WHITE);
 
     float right, left;
 
@@ -31,8 +33,8 @@ void dB_meter_render(SampleBuffer *sample_buffer, Vector2 position, Vector2 size
     float left_height  = size.y * (left_dB  - MIN_dB) / (MAX_dB - MIN_dB);
 
     /* Draw left channel */
-    DrawRectangle(position.x, position.y + size.y - left_height, size.x / 2, left_height, COLOR_GRAY);
+    DrawRectangle(position.x + 1, position.y + size.y - left_height, size.x / 2 - 1, left_height, COLOR_WHITE);
 
     /* Draw right channel */
-    DrawRectangle(position.x + size.x / 2, position.y + size.y - right_height, size.x / 2, right_height, COLOR_WHITE);
+    DrawRectangle(position.x + size.x / 2, position.y + size.y - right_height, size.x / 2 - 1, right_height, COLOR_WHITE);
 }

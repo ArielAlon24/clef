@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "raylib.h"
-#include "widgets/oscilloscope.h"
+#include "panels/oscilloscope.h"
 #include "sample_buffer.h"
 #include "constants/color.h"
 #include "texture_handler.h"

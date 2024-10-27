@@ -1,4 +1,4 @@
-#include "widgets/play_pause_panel.h"
+#include "panels/play_pause_panel.h"
 #include "raylib.h"
 #include "app.h"
 #include "texture_handler.h"

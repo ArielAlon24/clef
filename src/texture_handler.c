@@ -28,6 +28,10 @@ const char *texture_kind_path(TextureKind kind) {
             return TEXTURES_FOLDER "play.png";
         case TEXTURE_PAUSE:
             return TEXTURES_FOLDER "pause.png";
+        case TEXTURE_COMPONENT_PREVIEW:
+            return TEXTURES_FOLDER "component-preview.png";
+        case TEXTURE_DB_METER:
+            return TEXTURES_FOLDER "dB-meter.png";
         default:
             return "";
     }

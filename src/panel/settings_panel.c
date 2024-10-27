@@ -1,4 +1,4 @@
-#include "widgets/settings_panel.h"
+#include "panels/settings_panel.h"
 #include "constants/size.h"
 #include "texture_handler.h"
 #include "app.h"
