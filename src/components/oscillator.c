@@ -10,17 +10,18 @@
 #include "components/oscillator.h"
 #include "component_system/component.h"
 #include "component_system/component_methods.h"
+#include "font_handler.h"
 
 const char *oscillator_type_to_str(OscillatorType type) {
     switch (type) {
         case OSCILLATOR_SINE:
-            return "sine";
+            return "Sine";
         case OSCILLATOR_SQUARE:
-            return "square";
+            return "Square";
         case OSCILLATOR_TRIANGLE:
-            return "triangle";
+            return "Triangle";
         case OSCILLATOR_SAWTOOTH:
-            return "sawtooth";
+            return "Sawtooth";
         default:
             UNREACHABLE
     }
@@ -96,17 +97,30 @@ void oscillator_midi_callback(Component *self, const MidiMessage *messages, size
     }
 }
 
+/* TODO: TOO MANY NUMBERS!*/
 void oscillator_settings_render(Component* self, Vector2 position, Vector2 size) {
+    Font font = font_get();
+    float y0 = position.y;
+    position.x += 8;
+    position.y += 12;
+    DrawTextEx(font, "* OSCILLATOR", position, 9, 1, COLOR_GRAY);
+
     Oscillator *oscillator = (Oscillator *)self;
     char frequency[25];
-    snprintf(frequency, 25, "Frequency: %.2f Hz", oscillator->frequency);
+    snprintf(frequency, 25, "Frequency %.2f Hz", oscillator->frequency);
 
-    DrawText(frequency, position.x, position.y, 10, COLOR_WHITE);
+    position.y += 12 + 9;
+    DrawTextEx(font, frequency, position, 9, 1, COLOR_WHITE);
 
-    char type[20];
-    snprintf(type, 20, "Type: %s", oscillator_type_to_str(oscillator->type));
+    char type[25];
+    snprintf(type, 20, "Type      %s", oscillator_type_to_str(oscillator->type));
+    position.y += 8 + 9;
+    DrawTextEx(font, type, position, 9, 1, COLOR_WHITE);
 
-    DrawText(type,  position.x, position.y + size.y / 2, 10, COLOR_WHITE);
+    char amplitude[25];
+    snprintf(amplitude, 20, "Amplitude %.1f%%", oscillator->amplitude * 100);
+    position.y += 8 + 9;
+    DrawTextEx(font, amplitude, position, 9, 1, COLOR_WHITE);
 }
 
 void oscillator_render(Component *self, Vector2 position, Vector2 size) {
