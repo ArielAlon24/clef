@@ -8,6 +8,8 @@
 
 #define CLAMP(value, min, max) ((value) < (min) ? (min) : (value) > (max) ? (max) : (value))
 
+#define IS_BETWEEN(value, min, max) (value > min && value < max)
+
 #define NOT_IMPLEMENTED assert(0 && "Not Implemented");
 #define UNREACHABLE     assert(0 && "Unreachable");
 

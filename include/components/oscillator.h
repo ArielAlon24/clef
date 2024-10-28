@@ -25,6 +25,7 @@ typedef struct {
     float frequency;
     float amplitude; /* Value between 0 and 1 where 0 is no sound and 1 is full sound */
     float phase;
+    float pan; /* Value between -1 and 1 where -1 is completely left and 1 is completely right */
 } Oscillator;
 
 Component *oscillator_init(Component *parent);

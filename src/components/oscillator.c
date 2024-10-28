@@ -39,6 +39,7 @@ Component *oscillator_init(Component *parent) {
     oscillator->frequency = 440.0f;
     oscillator->amplitude = 0.2f;
     oscillator->phase = 0.0f;
+    oscillator->pan = 0.0f;
 
     return (Component *)oscillator;
 }
@@ -92,35 +93,73 @@ void oscillator_midi_callback(Component *self, const MidiMessage *messages, size
                     case KEY_C:
                         oscillator->type = (oscillator->type + 1) % _OSCILLATOR_TYPE_SIZE;
                         break;
+                    case KEY_R:
+                        oscillator->pan = MAX(oscillator->pan - 0.1, -1.0f);
+                        break;
+                    case KEY_L:
+                        oscillator->pan = MIN(oscillator->pan + 0.1, 1.0f);
+                        break;
                 }
         }
     }
 }
 
+
+void pan_meter_render(float pan, Vector2 position, Vector2 size) {
+    Rectangle rectangle = {.x = position.x, .y = position.y, .height = size.y, .width = size.x};
+    DrawRectangleLinesEx(rectangle, 1, COLOR_GRAY);
+    Vector2 rec_position, rec_size;
+    if (IS_BETWEEN(pan, -0.05f, 0.05f)) {
+        rec_position.x = position.x + size.x / 2 - 1 ;
+        rec_position.y = position.y + 1;
+        rec_size.x = (int)rectangle.width % 2 == 0 ? 2 : 1;
+        rec_size.y = size.y - 2;
+    } else if (pan > 0.0f) {
+        rec_position.x = position.x + size.x / 2;
+        rec_position.y = position.y + 1;
+        rec_size.x = pan * (rectangle.width - 2) / 2;
+        rec_size.y = size.y - 2;
+    } else {
+        rec_position.x = position.x + size.x / 2 + pan * (rectangle.width - 2) / 2;
+        rec_position.y = position.y + 1;
+        rec_size.x = - pan * (rectangle.width - 2) / 2;
+        rec_size.y = size.y - 2;
+    }
+    DrawRectangleV(rec_position, rec_size, COLOR_WHITE);
+}
+
+
+
 /* TODO: TOO MANY NUMBERS!*/
 void oscillator_settings_render(Component* self, Vector2 position, Vector2 size) {
-    Font font = font_get();
-    float y0 = position.y;
-    position.x += 8;
-    position.y += 12;
-    DrawTextEx(font, "* OSCILLATOR", position, 9, 1, COLOR_GRAY);
+    float y0 = position.y + FONT_HEIGHT_S + FONT_HEIGHT_S / 3;
+    float x0 = position.x + FONT_WIDTH_S * 2;
+    Vector2 text_position = {x0, y0};
+    font_write_s("* OSCILLATOR", text_position, COLOR_GRAY);
 
     Oscillator *oscillator = (Oscillator *)self;
-    char frequency[25];
-    snprintf(frequency, 25, "Frequency %.2f Hz", oscillator->frequency);
+    static char frequency[25];
+    snprintf(frequency, 25, "Frequency %.2fHz", oscillator->frequency);
 
-    position.y += 12 + 9;
-    DrawTextEx(font, frequency, position, 9, 1, COLOR_WHITE);
+    text_position.y += FONT_HEIGHT_S * 2;
+    font_write_s(frequency, text_position, COLOR_WHITE);
 
-    char type[25];
+    static char type[25];
     snprintf(type, 20, "Type      %s", oscillator_type_to_str(oscillator->type));
-    position.y += 8 + 9;
-    DrawTextEx(font, type, position, 9, 1, COLOR_WHITE);
+    text_position.y += FONT_HEIGHT_S * 2;
+    font_write_s(type, text_position, COLOR_WHITE);
 
-    char amplitude[25];
+    static char amplitude[25];
     snprintf(amplitude, 20, "Amplitude %.1f%%", oscillator->amplitude * 100);
-    position.y += 8 + 9;
-    DrawTextEx(font, amplitude, position, 9, 1, COLOR_WHITE);
+    text_position.y += FONT_HEIGHT_S * 2;
+    font_write_s(amplitude, text_position, COLOR_WHITE);
+
+    text_position.y = y0 + FONT_HEIGHT_S * 2;
+    text_position.x = position.x + (int) size.x / 2 + FONT_WIDTH_S * 2;
+    font_write_s("Pan", text_position, COLOR_WHITE);
+    text_position.x += 6 * FONT_WIDTH_S;
+    Vector2 pan_meter_size = {size.x - 1 - text_position.x + position.x - FONT_WIDTH_S * 2, FONT_HEIGHT_S};
+    pan_meter_render(oscillator->pan, text_position, pan_meter_size);
 }
 
 void oscillator_render(Component *self, Vector2 position, Vector2 size) {
@@ -128,10 +167,14 @@ void oscillator_render(Component *self, Vector2 position, Vector2 size) {
 }
 
 void _oscillator_sine_next(Oscillator *oscillator, float *buffer, size_t size) {
+    float pan_angle = (oscillator->pan + 1) * (M_PI / 4);
+    float left_scale = cosf(pan_angle);
+    float right_scale = sinf(pan_angle);
+
     for (size_t i = 0; i < size * 2; i += 2) {
         float sample = oscillator->amplitude * sinf(oscillator->phase);
-        buffer[i] += sample;
-        buffer[i + 1] += sample;
+        buffer[i] += sample * left_scale;
+        buffer[i + 1] += sample * right_scale;
 
         oscillator->phase += (TWO_PI * oscillator->frequency) / SAMPLE_RATE;
         if (oscillator->phase > TWO_PI) { oscillator->phase -= TWO_PI; }

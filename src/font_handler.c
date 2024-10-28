@@ -13,3 +13,14 @@ Font font_load() {
 }
 
 void font_unload() { UnloadFont(font); }
+
+void font_write_s(const char *text, Vector2 position, Color color) {
+    DrawTextEx(font_get(), text, position, FONT_HEIGHT_S, 1, color);
+}
+
+void font_write_m(const char *text, Vector2 position, Color color) {
+    DrawTextEx(font_get(), text, position, FONT_HEIGHT_M, 1, color);
+}
+void font_write_l(const char *text, Vector2 position, Color color) {
+    DrawTextEx(font_get(), text, position, FONT_HEIGHT_L, 1, color);
+}

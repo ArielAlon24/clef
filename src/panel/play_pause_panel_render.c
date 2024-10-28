@@ -8,6 +8,8 @@
 void play_pause_panel_render(App *application, Vector2 position, Vector2 size) {
     Texture2D play_pause_panel = texture_load(TEXTURE_PLAY_PAUSE_PANEL);
     DrawTextureV(play_pause_panel, position, WHITE);
+
+    /* TODO: Recreate the play / pause texture */
     if (audio_engine_is_playing()) {
         Texture2D play = texture_load(TEXTURE_PLAY);
         DrawTextureV(play, position, WHITE);

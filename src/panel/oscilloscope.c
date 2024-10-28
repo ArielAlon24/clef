@@ -29,8 +29,8 @@ void oscilloscope_render(SampleBuffer *sample_buffer, Vector2 position, Vector2 
     }
 
     /* Draw right channel */
-    trigger_index = sample_buffer_find_left(sample_buffer, 0.0f);
-    buffer = sample_buffer_left(sample_buffer);
+    trigger_index = sample_buffer_find_right(sample_buffer, 0.0f);
+    buffer = sample_buffer_right(sample_buffer);
 
     v0.x = x0;
     v0.y = position.y + half_height;
