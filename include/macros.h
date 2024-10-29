@@ -15,8 +15,6 @@
 
 #define LEN(a) (sizeof(a) / sizeof(a[0]))
 
-#define FOREACH(item, items, n) for (size_t i = 0; i < n && ((item) = (items)[i], true); ++i)
-
 /* Macros to compute the scale (0 to 1) of the amplitude for each channel based on the `pan` value*/
 #define PAN_R_SCALE(pan) MIN(1.0f, (pan + 1.0f))
 #define PAN_L_SCALE(pan) MIN(1.0f, 2.0f - (pan + 1.0f))

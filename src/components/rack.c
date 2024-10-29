@@ -173,23 +173,22 @@ void rack_unmount(Component *self) {
 
 void _rack_midi_callback(Rack *rack, const MidiMessage *messages, size_t size) {
     MidiMessage message;
-    FOREACH(message, messages, size) {
-        switch (message.type) {
-            case MIDI_MESSAGE_SYSEX:
-                switch (message.data.one) {
-                    case KEY_R:
-                        rack->target_pan = MAX(rack->target_pan - 0.1f, -1.0f);
-                        break;
-                    case KEY_L:
-                        rack->target_pan = MIN(rack->pan + 0.1f, 1.0f);
-                        break;
-                    case KEY_EQUAL:
-                        rack->target_amplitude = MIN(rack->target_amplitude + 0.05f, 1.0f);
-                        break;
-                    case KEY_MINUS:
-                        rack->target_amplitude = MAX(rack->target_amplitude - 0.05f, 0.0f);
-                        break;
-                }
+    for (size_t i = 0; i < size; ++i) {
+        message = messages[i];
+        if (message.type != MIDI_MESSAGE_SYSEX) continue;
+        switch (message.data.one) {
+            case KEY_R:
+                rack->target_pan = MAX(rack->target_pan - 0.1f, -1.0f);
+                break;
+            case KEY_L:
+                rack->target_pan = MIN(rack->pan + 0.1f, 1.0f);
+                break;
+            case KEY_EQUAL:
+                rack->target_amplitude = MIN(rack->target_amplitude + 0.05f, 1.0f);
+                break;
+            case KEY_MINUS:
+                rack->target_amplitude = MAX(rack->target_amplitude - 0.05f, 0.0f);
+                break;
         }
     }
 }
