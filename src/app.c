@@ -130,10 +130,7 @@ void app_render() {
         /* Rack Tree Panel */
         DrawRectangleV((Vector2){ BORDER_PADDING + 13 * CUBIC, BORDER_PADDING + 8 * CUBIC}, (Vector2){ CUBIC * 7, CUBIC * 12}, COLOR_DARK_GRAY);
 
-        component_preview_panel_render(app,
-            COMPONENT_PREVIEW_PANEL_POSITION, COMPONENT_PREVIEW_PANEL_DIMENSIONS,
-            COMPONENT_PREVIEW_COMPONENT_POSITION, COMPONENT_DIMENSIONS
-        );
+        component_preview_panel_render(app, COMPONENT_PREVIEW_PANEL_POSITION, COMPONENT_PREVIEW_PANEL_DIMENSIONS);
         play_pause_panel_render(app, PLAY_PAUSE_PANEL_POSITION, PLAY_PAUSE_PANEL_DIMENSIONS);
         settings_panel_render(app, SETTINGS_PANEL_POSITION, SETTINGS_PANEL_DIMENSIONS);
         component_rack_render(app->current_rack, RACK_POSITION, RACK_DIMENSIONS);
