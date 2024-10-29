@@ -4,6 +4,7 @@
 #include "sample_buffer.h"
 #include "constants/color.h"
 #include "texture_handler.h"
+#include "macros.h"
 
 void oscilloscope_render(SampleBuffer *sample_buffer, Vector2 position, Vector2 size) {
     Texture2D background = texture_load(TEXTURE_OSCILLOSCOPE);
@@ -23,7 +24,7 @@ void oscilloscope_render(SampleBuffer *sample_buffer, Vector2 position, Vector2 
     Vector2 v0 = {x0, position.y + half_height}, v1;
     for (int i = 0; i < size.x - 1; ++i) {
         v1.x = x0 + i;
-        v1.y = position.y + half_height + half_height * buffer[(trigger_index + i) % buffer_size];
+        v1.y = position.y + half_height + (half_height - 1) * buffer[(trigger_index + i) % buffer_size];
         DrawLineEx(v0, v1, 1, COLOR_GRAY);
         v0 = v1;
     }
@@ -36,7 +37,7 @@ void oscilloscope_render(SampleBuffer *sample_buffer, Vector2 position, Vector2 
     v0.y = position.y + half_height;
     for (int i = 0; i < size.x - 1; ++i) {
         v1.x = x0 + i;
-        v1.y = position.y + half_height + half_height * buffer[(trigger_index + i) % buffer_size];
+        v1.y = position.y + half_height + (half_height - 1) * buffer[(trigger_index + i) % buffer_size];
         DrawLineEx(v0, v1, 1, COLOR_WHITE);
         v0 = v1;
     }
