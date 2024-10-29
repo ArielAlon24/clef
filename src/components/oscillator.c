@@ -38,6 +38,7 @@ Component *oscillator_init(Component *parent) {
     oscillator->type = OSCILLATOR_SINE;
     oscillator->frequency = 440.0f;
     oscillator->amplitude = 0.2f;
+    oscillator->target_amplitude = 0.2f;
     oscillator->phase = 0.0f;
     oscillator->pan = 0.0f;
 
@@ -94,10 +95,16 @@ void oscillator_midi_callback(Component *self, const MidiMessage *messages, size
                         oscillator->type = (oscillator->type + 1) % _OSCILLATOR_TYPE_SIZE;
                         break;
                     case KEY_R:
-                        oscillator->pan = MAX(oscillator->pan - 0.1, -1.0f);
+                        oscillator->pan = MAX(oscillator->pan - 0.1f, -1.0f);
                         break;
                     case KEY_L:
-                        oscillator->pan = MIN(oscillator->pan + 0.1, 1.0f);
+                        oscillator->pan = MIN(oscillator->pan + 0.1f, 1.0f);
+                        break;
+                    case KEY_EQUAL:
+                        oscillator->target_amplitude = MIN(oscillator->target_amplitude + 0.05f, 1.0f);
+                        break;
+                    case KEY_MINUS:
+                        oscillator->target_amplitude = MAX(oscillator->target_amplitude - 0.05f, 0.0f);
                         break;
                 }
         }
@@ -128,9 +135,6 @@ void pan_meter_render(float pan, Vector2 position, Vector2 size) {
     DrawRectangleV(rec_position, rec_size, COLOR_WHITE);
 }
 
-
-
-/* TODO: TOO MANY NUMBERS!*/
 void oscillator_settings_render(Component* self, Vector2 position, Vector2 size) {
     float y0 = position.y + FONT_HEIGHT_S + FONT_HEIGHT_S / 3;
     float x0 = position.x + FONT_WIDTH_S * 2;
@@ -150,7 +154,7 @@ void oscillator_settings_render(Component* self, Vector2 position, Vector2 size)
     font_write_s(type, text_position, COLOR_WHITE);
 
     static char amplitude[25];
-    snprintf(amplitude, 20, "Amplitude %.1f%%", oscillator->amplitude * 100);
+    snprintf(amplitude, 20, "Amplitude %.1f%%", oscillator->target_amplitude * 100);
     text_position.y += FONT_HEIGHT_S * 2;
     font_write_s(amplitude, text_position, COLOR_WHITE);
 
@@ -167,20 +171,22 @@ void oscillator_render(Component *self, Vector2 position, Vector2 size) {
 }
 
 void _oscillator_sine_next(Oscillator *oscillator, float *buffer, size_t size) {
-    float pan_angle = (oscillator->pan + 1) * (M_PI / 4);
-    float left_scale = cosf(pan_angle);
-    float right_scale = sinf(pan_angle);
+    float amplitude_step = (oscillator->target_amplitude - oscillator->amplitude) / size;
 
     for (size_t i = 0; i < size * 2; i += 2) {
+        oscillator->amplitude = CLAMP(oscillator->amplitude + amplitude_step, 0.0f, 1.0f);
         float sample = oscillator->amplitude * sinf(oscillator->phase);
-        buffer[i] += sample * left_scale;
-        buffer[i + 1] += sample * right_scale;
+
+        buffer[i] += sample * PAN_L_SCALE(oscillator->pan);
+        buffer[i + 1] += sample * PAN_R_SCALE(oscillator->pan);
 
         oscillator->phase += (TWO_PI * oscillator->frequency) / SAMPLE_RATE;
         if (oscillator->phase > TWO_PI) { oscillator->phase -= TWO_PI; }
     }
 }
 
+
+/* TODO: Add all the sine features to the square oscillator callback */
 void _oscillator_square_next(Oscillator *oscillator, float *buffer, size_t size) {
     for (size_t i = 0; i < size * 2; i += 2) {
         float sample = (sinf(oscillator->phase) >= 0.0f) ? oscillator->amplitude : -oscillator->amplitude;

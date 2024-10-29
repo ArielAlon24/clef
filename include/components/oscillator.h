@@ -24,6 +24,7 @@ typedef struct {
     OscillatorType type;
     float frequency;
     float amplitude; /* Value between 0 and 1 where 0 is no sound and 1 is full sound */
+    float target_amplitude; /* After an amplitude change `amplitude` will slowly be `target_amplitude` to avoid clicks */
     float phase;
     float pan; /* Value between -1 and 1 where -1 is completely left and 1 is completely right */
 } Oscillator;

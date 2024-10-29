@@ -9,6 +9,7 @@
 #include "texture_handler.h"
 #include "constants/color.h"
 #include "constants/size.h"
+#include "font_handler.h"
 
 Component *rack_init(Component *parent) {
     Rack *rack = malloc(sizeof(Rack));
@@ -80,7 +81,13 @@ void rack_midi_callback(Component *self, const MidiMessage *messages, size_t siz
 }
 
 /* TODO: Create `rack_settings_render` */
-void rack_settings_render(Component *self, Vector2 position, Vector2 size) {}
+void rack_settings_render(Component *self, Vector2 position, Vector2 size) {
+    float y0 = position.y + FONT_HEIGHT_S + FONT_HEIGHT_S / 3;
+    float x0 = position.x + FONT_WIDTH_S * 2;
+    Vector2 text_position = {x0, y0};
+    font_write_s("* RACK", text_position, COLOR_GRAY);
+
+}
 
 void rack_render(Component *self, Vector2 position, Vector2 size) {
     return rack_preview(position, size);

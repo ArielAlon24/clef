@@ -65,13 +65,15 @@ void envelope_render(Component *self, Vector2 position, Vector2 size) {
     return envelope_preview(position, size);
 }
 
+void envelope_settings_render(Component *self, Vector2 position, Vector2 size) {}
+
 ComponentMethods envelope_methods = {
     .init = envelope_init,
     .free = envelope_free,
     .preview = envelope_preview,
     .audio_callback = rack_audio_callback,
     .midi_callback = rack_midi_callback,
-    .settings_render = NULL,
+    .settings_render = envelope_settings_render,
     .rack_render = rack_rack_render,
     .render = envelope_render,
     .mount = rack_mount,

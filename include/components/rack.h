@@ -25,6 +25,7 @@ void rack_audio_callback(Component *self, float *buffer, size_t size);
 void rack_midi_callback(Component *self, const MidiMessage *messages, size_t size, bool system);
 
 void rack_rack_render(Component *self, Vector2 position, Vector2 size);
+void rack_settings_render(Component *self, Vector2 position, Vector2 size);
 void rack_render(Component *self, Vector2 position, Vector2 size);
 
 void rack_mount(Component *self, Component *component);

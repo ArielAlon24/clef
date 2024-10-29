@@ -71,7 +71,7 @@ void app_run() {
     }
 }
 
-KeyboardKey MIDI_KEYS[] = {KEY_LEFT_BRACKET, KEY_RIGHT_BRACKET, KEY_C, KEY_L, KEY_R};
+KeyboardKey MIDI_KEYS[] = {KEY_LEFT_BRACKET, KEY_RIGHT_BRACKET, KEY_C, KEY_L, KEY_R, KEY_MINUS, KEY_EQUAL};
 
 void app_update() {
     window_update();
