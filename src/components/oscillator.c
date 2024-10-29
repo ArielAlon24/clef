@@ -95,10 +95,10 @@ void oscillator_midi_callback(Component *self, const MidiMessage *messages, size
                         oscillator->type = (oscillator->type + 1) % _OSCILLATOR_TYPE_SIZE;
                         break;
                     case KEY_R:
-                        oscillator->pan = MAX(oscillator->pan - 0.1f, -1.0f);
+                        oscillator->target_pan = MAX(oscillator->target_pan - 0.1f, -1.0f);
                         break;
                     case KEY_L:
-                        oscillator->pan = MIN(oscillator->pan + 0.1f, 1.0f);
+                        oscillator->target_pan = MIN(oscillator->pan + 0.1f, 1.0f);
                         break;
                     case KEY_EQUAL:
                         oscillator->target_amplitude = MIN(oscillator->target_amplitude + 0.05f, 1.0f);
@@ -172,9 +172,12 @@ void oscillator_render(Component *self, Vector2 position, Vector2 size) {
 
 void _oscillator_sine_next(Oscillator *oscillator, float *buffer, size_t size) {
     float amplitude_step = (oscillator->target_amplitude - oscillator->amplitude) / size;
+    float pan_step = (oscillator->target_pan - oscillator->pan) / size;
 
     for (size_t i = 0; i < size * 2; i += 2) {
         oscillator->amplitude = CLAMP(oscillator->amplitude + amplitude_step, 0.0f, 1.0f);
+        oscillator->pan = CLAMP(oscillator->pan + pan_step, -1.0f, 1.0f);
+
         float sample = oscillator->amplitude * sinf(oscillator->phase);
 
         buffer[i] += sample * PAN_L_SCALE(oscillator->pan);

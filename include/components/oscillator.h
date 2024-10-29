@@ -27,6 +27,7 @@ typedef struct {
     float target_amplitude; /* After an amplitude change `amplitude` will slowly be `target_amplitude` to avoid clicks */
     float phase;
     float pan; /* Value between -1 and 1 where -1 is completely left and 1 is completely right */
+    float target_pan; /* After a pan change `pan` will slowly be `target_pan` to avoid clicks */
 } Oscillator;
 
 Component *oscillator_init(Component *parent);
