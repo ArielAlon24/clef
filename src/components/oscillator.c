@@ -61,17 +61,22 @@ void oscillator_audio_callback(Component *self, float *buffer, size_t size) {
     /* If frequency is 0Hz, mute the oscillator */
     if (oscillator->frequency == 0.0f) return;
 
-    switch (oscillator->type) {
-        case OSCILLATOR_SINE:
-            return _oscillator_sine_next(oscillator, buffer, size);
-        case OSCILLATOR_SQUARE:
-            return _oscillator_square_next(oscillator, buffer, size);
-        case OSCILLATOR_TRIANGLE:
-            return _oscillator_triangle_next(oscillator, buffer, size);
-        case OSCILLATOR_SAWTOOTH:
-            return _oscillator_sawtooth_next(oscillator, buffer, size);
-        default:
-            UNREACHABLE;
+    OscillatorNext next = OSCILLATOR_NEXT_MAPPING[oscillator->type];
+
+    float amplitude_step = (oscillator->target_amplitude - oscillator->amplitude) / size;
+    float pan_step = (oscillator->target_pan - oscillator->pan) / size;
+
+    for (size_t i = 0; i < size * 2; i += 2) {
+        oscillator->amplitude = CLAMP(oscillator->amplitude + amplitude_step, 0.0f, 1.0f);
+        oscillator->pan = CLAMP(oscillator->pan + pan_step, -1.0f, 1.0f);
+
+        float sample = (next)(oscillator->phase, oscillator->amplitude);
+
+        buffer[i] += sample * PAN_L_SCALE(oscillator->pan);
+        buffer[i + 1] += sample * PAN_R_SCALE(oscillator->pan);
+
+        oscillator->phase += (TWO_PI * oscillator->frequency) / SAMPLE_RATE;
+        if (oscillator->phase > TWO_PI) { oscillator->phase -= TWO_PI; }
     }
 }
 
@@ -99,7 +104,7 @@ void oscillator_midi_callback(Component *self, const MidiMessage *messages, size
                         oscillator->target_pan = MAX(oscillator->target_pan - 0.1f, -1.0f);
                         break;
                     case KEY_L:
-                        oscillator->target_pan = MIN(oscillator->pan + 0.1f, 1.0f);
+                        oscillator->target_pan = MIN(oscillator->target_pan + 0.1f, 1.0f);
                         break;
                     case KEY_EQUAL:
                         oscillator->target_amplitude = MIN(oscillator->target_amplitude + 0.05f, 1.0f);
@@ -140,46 +145,31 @@ void oscillator_settings_render(Component* self, Vector2 position, Vector2 size)
     font_write_s("Pan", text_position, COLOR_WHITE);
     text_position.x += 6 * FONT_WIDTH_S;
     Vector2 pan_meter_size = {size.x - 1 - text_position.x + position.x - FONT_WIDTH_S * 2, FONT_HEIGHT_S};
-    pan_meter_render(oscillator->pan, text_position, pan_meter_size);
+    pan_meter_render(oscillator->target_pan, text_position, pan_meter_size);
 }
 
 void oscillator_render(Component *self, Vector2 position, Vector2 size) {
     return oscillator_preview(position, size);
 }
 
-void _oscillator_sine_next(Oscillator *oscillator, float *buffer, size_t size) {
-    float amplitude_step = (oscillator->target_amplitude - oscillator->amplitude) / size;
-    float pan_step = (oscillator->target_pan - oscillator->pan) / size;
+float _oscillator_sine_next(float phase, float amplitude) { return amplitude * sinf(phase); }
+float _oscillator_square_next(float phase, float amplitude) { return (sinf(phase) >= 0.0f) ? amplitude : -amplitude; }
 
-    for (size_t i = 0; i < size * 2; i += 2) {
-        oscillator->amplitude = CLAMP(oscillator->amplitude + amplitude_step, 0.0f, 1.0f);
-        oscillator->pan = CLAMP(oscillator->pan + pan_step, -1.0f, 1.0f);
-
-        float sample = oscillator->amplitude * sinf(oscillator->phase);
-
-        buffer[i] += sample * PAN_L_SCALE(oscillator->pan);
-        buffer[i + 1] += sample * PAN_R_SCALE(oscillator->pan);
-
-        oscillator->phase += (TWO_PI * oscillator->frequency) / SAMPLE_RATE;
-        if (oscillator->phase > TWO_PI) { oscillator->phase -= TWO_PI; }
-    }
+float _oscillator_triangle_next(float phase, float amplitude) {
+    /* Normalized phase to 0 - 2 */
+    float normalized_phase = fmod(phase, TWO_PI) / M_PI;
+    return normalized_phase < 1.0f ? amplitude * (2.0f * normalized_phase - 1.0f) : amplitude * (3.0f - 2.0f * normalized_phase);
 }
 
-
-/* TODO: Add all the sine features to the square oscillator callback */
-void _oscillator_square_next(Oscillator *oscillator, float *buffer, size_t size) {
-    for (size_t i = 0; i < size * 2; i += 2) {
-        float sample = (sinf(oscillator->phase) >= 0.0f) ? oscillator->amplitude : -oscillator->amplitude;
-        buffer[i] += sample;
-        buffer[i + 1] += sample;
-
-        oscillator->phase += (TWO_PI * oscillator->frequency) / SAMPLE_RATE;
-        if (oscillator->phase > TWO_PI) { oscillator->phase -= TWO_PI; }
-    }
+float _oscillator_sawtooth_next(float phase, float amplitude) {
+    /* Normalized phase to 0 - 1 */
+    float normalized_phase = fmod(phase, TWO_PI) / TWO_PI;
+    return amplitude * (2.0f * normalized_phase - 1.0f);
 }
 
-void _oscillator_triangle_next(Oscillator *oscillator, float *buffer, size_t size) { NOT_IMPLEMENTED }
-void _oscillator_sawtooth_next(Oscillator *oscillator, float *buffer, size_t size) { NOT_IMPLEMENTED }
+OscillatorNext OSCILLATOR_NEXT_MAPPING[_OSCILLATOR_TYPE_SIZE] = {
+    _oscillator_sine_next, _oscillator_square_next, _oscillator_triangle_next, _oscillator_sawtooth_next
+};
 
 ComponentMethods oscillator_methods = {
     .init = oscillator_init,

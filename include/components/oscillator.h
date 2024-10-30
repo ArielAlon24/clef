@@ -40,11 +40,13 @@ void oscillator_midi_callback(Component *self, const MidiMessage *messages, size
 void oscillator_settings_render(Component *self, Vector2 position, Vector2 size);
 void oscillator_render(Component *self, Vector2 position, Vector2 size);
 
-void _oscillator_sine_next(Oscillator *oscillator, float *buffer, size_t size);
-void _oscillator_square_next(Oscillator *oscillator, float *buffer, size_t size);
-void _oscillator_triangle_next(Oscillator *oscillator, float *buffer, size_t size);
-void _oscillator_sawtooth_next(Oscillator *oscillator, float *buffer, size_t size);
+typedef float (* OscillatorNext)(float phase, float amplitude);
+float _oscillator_sine_next(float phase, float amplitude);
+float _oscillator_square_next(float phase, float amplitude);
+float _oscillator_triangle_next(float phase, float amplitude);
+float _oscillator_sawtooth_next(float phase, float amplitude);
 
+extern OscillatorNext OSCILLATOR_NEXT_MAPPING[_OSCILLATOR_TYPE_SIZE];
 extern ComponentMethods oscillator_methods;
 
 #endif
